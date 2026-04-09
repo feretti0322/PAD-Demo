@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>キャンペーン管理 | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .campaign-card {
+      border: 1px solid #e0e6ed;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      background: #fff;
+      transition: box-shadow 0.2s;
+    }
+    .campaign-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    .campaign-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .campaign-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a3a5c;
+      flex: 1;
+    }
+    .campaign-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: #888;
+    }
+    .campaign-meta span strong { color: #333; }
+    .campaign-desc {
+      font-size: 13px;
+      color: #666;
+      margin: 8px 0;
+      line-height: 1.5;
+    }
+    .progress-wrap {
+      margin-top: 10px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .progress-bar-bg {
+      height: 8px;
+      background: #e0e6ed;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: #2c7be5;
+      transition: width 0.5s;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid #e0e6ed;
+      margin-bottom: 20px;
+    }
+    .tab-item {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s;
+    }
+    .tab-item:hover { color: #2c7be5; }
+    .tab-item.active { color: #2c7be5; border-bottom-color: #2c7be5; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">キャンペーン管理</div>
+          <div class="breadcrumb">ホーム &rsaquo; キャンペーン管理</div>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">user</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div id="alertArea"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <!-- タブ -->
+          <div class="tab-bar" style="margin-bottom:0; border-bottom:none;">
+            <div class="tab-item active" onclick="switchTab('all', this)">すべて</div>
+            <div class="tab-item" onclick="switchTab('active', this)">実施中</div>
+            <div class="tab-item" onclick="switchTab('scheduled', this)">予定</div>
+            <div class="tab-item" onclick="switchTab('ended', this)">終了</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">&#43; 新規キャンペーン</button>
+        </div>
+
+        <!-- キャンペーンリスト -->
+        <div id="campaignList"></div>
+
+        <!-- テーブル形式表示 -->
+        <div class="card">
+          <div class="card-header"><h3>&#128203; キャンペーン一覧（テーブル）</h3></div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>キャンペーン名</th>
+                  <th>対象業種</th>
+                  <th>開始日</th>
+                  <th>終了日</th>
+                  <th class="right">目標売上</th>
+                  <th class="right">達成率</th>
+                  <th class="center">ステータス</th>
+                  <th class="center">操作</th>
+                </tr>
+              </thead>
+              <tbody id="campaignTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-footer">
+        &copy; 2025 PAD練習サイト
+      </div>
+    </div>
+  </div>
+
+  <!-- 新規/編集モーダル -->
+  <div class="modal-overlay" id="formModal">
+    <div class="modal" style="width:520px;">
+      <div class="modal-header">
+        <h3 id="modalTitle">キャンペーン 新規登録</h3>
+        <button class="modal-close" onclick="closeModal()">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="m_title">キャンペーン名 <span class="required">*</span></label>
+          <input type="text" id="m_title" class="form-control" placeholder="例：春の感謝セール2025">
+        </div>
+        <div class="form-group">
+          <label for="m_desc">説明</label>
+          <textarea id="m_desc" class="form-control" rows="2" placeholder="キャンペーンの説明"></textarea>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="m_industry">対象業種</label>
+            <select id="m_industry" class="form-control">
+              <option value="全業種">全業種</option>
+              <option value="製造業">製造業</option>
+              <option value="サービス業">サービス業</option>
+              <option value="飲食業">飲食業</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="m_status">ステータス</label>
+            <select id="m_status" class="form-control">
+              <option value="予定">予定</option>
+              <option value="実施中">実施中</option>
+              <option value="終了">終了</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="m_start">開始日 <span class="required">*</span></label>
+            <input type="date" id="m_start" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="m_end">終了日 <span class="required">*</span></label>
+            <input type="date" id="m_end" class="form-control">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="m_target">目標売上（円）</label>
+            <input type="number" id="m_target" class="form-control" placeholder="例：5000000">
+          </div>
+          <div class="form-group">
+            <label for="m_achieved">達成売上（円）</label>
+            <input type="number" id="m_achieved" class="form-control" placeholder="例：3200000">
+          </div>
+        </div>
+        <div id="modalError" class="alert alert-danger hidden">必須項目を入力してください</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal()">キャンセル</button>
+        <button class="btn btn-primary" id="modalSaveBtn" onclick="saveCampaign()">登録する</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('campaign');
+    const uname = sessionStorage.getItem('userName') || 'user';
+    document.getElementById('userName').textContent = uname;
+    document.getElementById('userAvatar').textContent = uname.charAt(0).toUpperCase();
+
+    const INIT_CAMPAIGNS = [
+      { id: 'CP001', title: '春の新規顧客獲得キャンペーン', desc: '新規得意先への特別割引を提供するキャンペーン。初回受注10%オフ。', industry: '全業種', start: '2025/04/01', end: '2025/04/30', target: 5000000, achieved: 3840000, status: '実施中' },
+      { id: 'CP002', title: '製造業向け大口優待プラン', desc: '製造業の大口顧客に対し、500万円以上の取引で特典を付与。', industry: '製造業', start: '2025/04/15', end: '2025/06/30', target: 8000000, achieved: 2200000, status: '実施中' },
+      { id: 'CP003', title: 'ゴールデンウィーク限定セール', desc: 'GW期間中の特別価格。全商品5%オフ。', industry: '全業種', start: '2025/05/01', end: '2025/05/06', target: 3000000, achieved: 0, status: '予定' },
+      { id: 'CP004', title: '飲食業向けリピート割引', desc: '飲食業の既存顧客が2回目以降の取引で適用される割引制度。', industry: '飲食業', start: '2025/03/01', end: '2025/03/31', target: 2000000, achieved: 2350000, status: '終了' },
+      { id: 'CP005', title: 'サービス業新規開拓プロジェクト', desc: 'サービス業における新規顧客開拓を目的としたキャンペーン。', industry: 'サービス業', start: '2025/02/01', end: '2025/03/31', target: 4000000, achieved: 3100000, status: '終了' },
+      { id: 'CP006', title: '夏季特別キャンペーン', desc: '夏季限定の特別価格を提供。期間中の全取引が対象。', industry: '全業種', start: '2025/07/01', end: '2025/08/31', target: 10000000, achieved: 0, status: '予定' },
+    ];
+
+    let campaigns = JSON.parse(sessionStorage.getItem('campaigns') || 'null') || [...INIT_CAMPAIGNS];
+    let currentTab = 'all';
+    let editTarget = null;
+    let nextNo = campaigns.length + 1;
+
+    function getFiltered() {
+      if (currentTab === 'all') return campaigns;
+      const map = { active: '実施中', scheduled: '予定', ended: '終了' };
+      return campaigns.filter(c => c.status === map[currentTab]);
+    }
+
+    function switchTab(tab, el) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      render();
+    }
+
+    const statusClass = { '実施中': 'badge-success', '予定': 'badge-info', '終了': 'badge-secondary' };
+
+    function render() {
+      const filtered = getFiltered();
+
+      // カードリスト
+      const listEl = document.getElementById('campaignList');
+      if (filtered.length === 0) {
+        listEl.innerHTML = '<div class="text-muted text-center" style="padding:20px;">該当するキャンペーンがありません</div>';
+      } else {
+        listEl.innerHTML = filtered.map(c => {
+          const pct = c.target > 0 ? Math.min(100, Math.round(c.achieved / c.target * 100)) : 0;
+          const barColor = pct >= 100 ? '#00b274' : pct >= 50 ? '#2c7be5' : '#f6c343';
+          return `
+            <div class="campaign-card">
+              <div class="campaign-header">
+                <div class="campaign-title">${c.title}</div>
+                <span class="badge ${statusClass[c.status] || 'badge-secondary'}">${c.status}</span>
+                <button class="btn btn-outline btn-sm" onclick="openEditModal('${c.id}')">編集</button>
+              </div>
+              <div class="campaign-desc">${c.desc}</div>
+              <div class="campaign-meta">
+                <span>&#128197; ${c.start} 〜 ${c.end}</span>
+                <span>&#127981; 対象: <strong>${c.industry}</strong></span>
+                <span>&#127919; 目標: <strong>${formatMoney(c.target)}</strong></span>
+                <span>&#9989; 達成: <strong>${formatMoney(c.achieved)}</strong></span>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-label">
+                  <span>達成率</span>
+                  <span style="font-weight:700; color:${barColor};">${pct}%</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width:${pct}%; background:${barColor};"></div>
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      // テーブル
+      const tbody = document.getElementById('campaignTbody');
+      tbody.innerHTML = '';
+      campaigns.forEach(c => {
+        const pct = c.target > 0 ? Math.min(100, Math.round(c.achieved / c.target * 100)) : '-';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="text-muted">${c.id}</span></td>
+          <td><strong>${c.title}</strong></td>
+          <td>${c.industry}</td>
+          <td>${c.start}</td>
+          <td>${c.end}</td>
+          <td class="right">${formatMoney(c.target)}</td>
+          <td class="right font-bold" style="color:${pct >= 100 ? '#00b274' : '#333'};">${pct}%</td>
+          <td class="center"><span class="badge ${statusClass[c.status] || 'badge-secondary'}">${c.status}</span></td>
+          <td class="center">
+            <button class="btn btn-outline btn-sm" onclick="openEditModal('${c.id}')">編集</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openAddModal() {
+      editTarget = null;
+      document.getElementById('modalTitle').textContent = 'キャンペーン 新規登録';
+      document.getElementById('modalSaveBtn').textContent = '登録する';
+      document.getElementById('m_title').value = '';
+      document.getElementById('m_desc').value = '';
+      document.getElementById('m_industry').value = '全業種';
+      document.getElementById('m_status').value = '予定';
+      document.getElementById('m_start').value = '';
+      document.getElementById('m_end').value = '';
+      document.getElementById('m_target').value = '';
+      document.getElementById('m_achieved').value = '';
+      document.getElementById('modalError').classList.add('hidden');
+      document.getElementById('formModal').classList.add('open');
+    }
+
+    function openEditModal(id) {
+      const c = campaigns.find(x => x.id === id);
+      if (!c) return;
+      editTarget = id;
+      document.getElementById('modalTitle').textContent = 'キャンペーン 編集';
+      document.getElementById('modalSaveBtn').textContent = '更新する';
+      document.getElementById('m_title').value = c.title;
+      document.getElementById('m_desc').value = c.desc;
+      document.getElementById('m_industry').value = c.industry;
+      document.getElementById('m_status').value = c.status;
+      document.getElementById('m_start').value = c.start.replace(/\//g, '-');
+      document.getElementById('m_end').value = c.end.replace(/\//g, '-');
+      document.getElementById('m_target').value = c.target;
+      document.getElementById('m_achieved').value = c.achieved;
+      document.getElementById('modalError').classList.add('hidden');
+      document.getElementById('formModal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('formModal').classList.remove('open');
+    }
+
+    function saveCampaign() {
+      const title = document.getElementById('m_title').value.trim();
+      const start = document.getElementById('m_start').value;
+      const end = document.getElementById('m_end').value;
+      if (!title || !start || !end) {
+        document.getElementById('modalError').classList.remove('hidden');
+        return;
+      }
+      const data = {
+        title,
+        desc: document.getElementById('m_desc').value.trim(),
+        industry: document.getElementById('m_industry').value,
+        status: document.getElementById('m_status').value,
+        start: start.replace(/-/g, '/'),
+        end: end.replace(/-/g, '/'),
+        target: parseInt(document.getElementById('m_target').value) || 0,
+        achieved: parseInt(document.getElementById('m_achieved').value) || 0,
+      };
+
+      if (editTarget) {
+        const idx = campaigns.findIndex(c => c.id === editTarget);
+        campaigns[idx] = { ...campaigns[idx], ...data };
+        showAlert('success', `「${title}」を更新しました`);
+      } else {
+        const newId = 'CP' + String(nextNo++).padStart(3, '0');
+        campaigns.push({ id: newId, ...data });
+        showAlert('success', `「${title}」を登録しました`);
+      }
+      sessionStorage.setItem('campaigns', JSON.stringify(campaigns));
+      closeModal();
+      render();
+    }
+
+    function showAlert(type, msg) {
+      const area = document.getElementById('alertArea');
+      area.innerHTML = `<div class="alert alert-${type}">&#10003; ${msg}</div>`;
+      setTimeout(() => { area.innerHTML = ''; }, 3000);
+    }
+
+    render();
+  </script>
+</body>
+</html>

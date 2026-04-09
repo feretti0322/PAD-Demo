@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>データ集計 | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .agg-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e0e6ed;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    .rank-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .rank-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .rank-1 { background: #f6c343; color: #333; }
+    .rank-2 { background: #aab4be; color: #333; }
+    .rank-3 { background: #c27a3a; color: #fff; }
+    .rank-n { background: #e0e6ed; color: #888; }
+    .rank-label { flex: 1; font-size: 13px; font-weight: 600; }
+    .rank-bar-bg { flex: 2; height: 10px; background: #e0e6ed; border-radius: 5px; overflow: hidden; }
+    .rank-bar-fill { height: 100%; border-radius: 5px; background: #2c7be5; }
+    .rank-value { font-size: 13px; font-weight: 700; color: #1a3a5c; min-width: 100px; text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">データ集計</div>
+          <div class="breadcrumb">ホーム &rsaquo; データ集計</div>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">user</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- フィルター -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-body" style="padding:16px 20px;">
+            <div style="display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap;">
+              <div class="filter-group">
+                <label style="font-size:11px; font-weight:700; color:#888;">集計期間（From）</label>
+                <input type="date" id="aggFrom" class="form-control">
+              </div>
+              <div class="filter-group">
+                <label style="font-size:11px; font-weight:700; color:#888;">集計期間（To）</label>
+                <input type="date" id="aggTo" class="form-control">
+              </div>
+              <div class="filter-group">
+                <label style="font-size:11px; font-weight:700; color:#888;">業種</label>
+                <select id="aggIndustry" class="form-control">
+                  <option value="">すべての業種</option>
+                  <option value="製造業">製造業</option>
+                  <option value="サービス業">サービス業</option>
+                  <option value="飲食業">飲食業</option>
+                  <option value="その他">その他</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="calcAggregation()">&#128202; 集計する</button>
+              <button class="btn btn-outline" onclick="clearAgg()">クリア</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-blue">💰</div>
+            <div class="kpi-label">合計売上額</div>
+            <div class="kpi-value" id="aggTotal" style="font-size:22px;">-</div>
+            <div class="kpi-unit">円</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-green">📋</div>
+            <div class="kpi-label">取引件数</div>
+            <div class="kpi-value" id="aggCnt" style="font-size:22px;">-</div>
+            <div class="kpi-unit">件</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-orange">📊</div>
+            <div class="kpi-label">平均売上額</div>
+            <div class="kpi-value" id="aggAvg" style="font-size:22px;">-</div>
+            <div class="kpi-unit">円</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-red">🏆</div>
+            <div class="kpi-label">最高売上額</div>
+            <div class="kpi-value" id="aggMax" style="font-size:22px;">-</div>
+            <div class="kpi-unit">円</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- 得意先別ランキング -->
+          <div class="card">
+            <div class="card-header"><h3>🏆 得意先別 売上ランキング</h3></div>
+            <div class="card-body" id="rankCustomer">
+              <p class="text-muted text-center" style="padding:20px 0;">「集計する」ボタンを押してください</p>
+            </div>
+          </div>
+
+          <!-- 業種別集計 -->
+          <div class="card">
+            <div class="card-header"><h3>🏭 業種別 集計</h3></div>
+            <div class="card-body" id="rankIndustry">
+              <p class="text-muted text-center" style="padding:20px 0;">「集計する」ボタンを押してください</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 月別集計テーブル -->
+        <div class="card">
+          <div class="card-header"><h3>📅 月別 集計テーブル</h3></div>
+          <div class="card-body" style="padding:0;" id="monthTableWrap">
+            <div class="text-muted text-center" style="padding:32px;">「集計する」ボタンを押してください</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-footer">
+        &copy; 2025 PAD練習サイト
+      </div>
+    </div>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('aggregation');
+    const uname = sessionStorage.getItem('userName') || 'user';
+    document.getElementById('userName').textContent = uname;
+    document.getElementById('userAvatar').textContent = uname.charAt(0).toUpperCase();
+
+    function getSalesData() {
+      return JSON.parse(sessionStorage.getItem('salesData') || 'null') || [...SALES_DATA];
+    }
+
+    function clearAgg() {
+      document.getElementById('aggFrom').value = '';
+      document.getElementById('aggTo').value = '';
+      document.getElementById('aggIndustry').value = '';
+      ['aggTotal','aggCnt','aggAvg','aggMax'].forEach(id => document.getElementById(id).textContent = '-');
+      document.getElementById('rankCustomer').innerHTML = '<p class="text-muted text-center" style="padding:20px 0;">「集計する」ボタンを押してください</p>';
+      document.getElementById('rankIndustry').innerHTML = '<p class="text-muted text-center" style="padding:20px 0;">「集計する」ボタンを押してください</p>';
+      document.getElementById('monthTableWrap').innerHTML = '<div class="text-muted text-center" style="padding:32px;">「集計する」ボタンを押してください</div>';
+    }
+
+    function calcAggregation() {
+      const from = document.getElementById('aggFrom').value;
+      const to = document.getElementById('aggTo').value;
+      const ind = document.getElementById('aggIndustry').value;
+
+      let sales = getSalesData();
+
+      // 業種フィルター
+      if (ind) {
+        const custIds = CUSTOMERS.filter(c => c.industry === ind).map(c => c.id);
+        sales = sales.filter(s => custIds.includes(s.customerId));
+      }
+      // 期間フィルター
+      sales = sales.filter(s => {
+        const d = s.date.replace(/\//g, '-');
+        if (from && d < from) return false;
+        if (to && d > to) return false;
+        return true;
+      });
+
+      if (sales.length === 0) {
+        alert('該当するデータがありません');
+        return;
+      }
+
+      const total = sales.reduce((s, r) => s + r.amount, 0);
+      const avg = Math.round(total / sales.length);
+      const max = Math.max(...sales.map(r => r.amount));
+
+      document.getElementById('aggTotal').textContent = total.toLocaleString('ja-JP');
+      document.getElementById('aggCnt').textContent = sales.length;
+      document.getElementById('aggAvg').textContent = avg.toLocaleString('ja-JP');
+      document.getElementById('aggMax').textContent = max.toLocaleString('ja-JP');
+
+      // 得意先別ランキング
+      const custMap = {};
+      sales.forEach(s => {
+        if (!custMap[s.customerName]) custMap[s.customerName] = { total: 0, cnt: 0 };
+        custMap[s.customerName].total += s.amount;
+        custMap[s.customerName].cnt++;
+      });
+      const custRanking = Object.entries(custMap).sort((a,b) => b[1].total - a[1].total);
+      const maxCust = custRanking[0][1].total;
+
+      let rankHtml = '';
+      custRanking.forEach(([name, data], i) => {
+        const pct = Math.round(data.total / maxCust * 100);
+        const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+        rankHtml += `
+          <div class="rank-bar">
+            <div class="rank-num ${rankClass}">${i+1}</div>
+            <div class="rank-label">${name}</div>
+            <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${pct}%"></div></div>
+            <div class="rank-value">${formatMoney(data.total)}</div>
+          </div>`;
+      });
+      document.getElementById('rankCustomer').innerHTML = rankHtml;
+
+      // 業種別集計
+      const indMap = {};
+      sales.forEach(s => {
+        const c = CUSTOMERS.find(c => c.id === s.customerId);
+        const industry = c ? c.industry : 'その他';
+        if (!indMap[industry]) indMap[industry] = { total: 0, cnt: 0 };
+        indMap[industry].total += s.amount;
+        indMap[industry].cnt++;
+      });
+      const indArr = Object.entries(indMap).sort((a,b) => b[1].total - a[1].total);
+      const maxInd = indArr[0][1].total;
+      const indColors = { '製造業': '#2c7be5', 'サービス業': '#00b274', '飲食業': '#f6c343', 'その他': '#e63757' };
+
+      let indHtml = '';
+      indArr.forEach(([name, data], i) => {
+        const pct = Math.round(data.total / maxInd * 100);
+        const color = indColors[name] || '#2c7be5';
+        indHtml += `
+          <div class="rank-bar">
+            <div class="rank-num rank-n" style="background:${color}; color:#fff;">${i+1}</div>
+            <div class="rank-label">${name}<br><span style="font-size:11px; color:#888; font-weight:400;">${data.cnt}件</span></div>
+            <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${pct}%; background:${color}"></div></div>
+            <div class="rank-value">${formatMoney(data.total)}</div>
+          </div>`;
+      });
+      document.getElementById('rankIndustry').innerHTML = indHtml;
+
+      // 月別集計テーブル
+      const monthMap = {};
+      sales.forEach(s => {
+        const m = s.date.slice(0, 7).replace('/', '-');
+        if (!monthMap[m]) monthMap[m] = { total: 0, cnt: 0 };
+        monthMap[m].total += s.amount;
+        monthMap[m].cnt++;
+      });
+      const months = Object.keys(monthMap).sort();
+
+      let tableHtml = `
+        <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>年月</th>
+              <th class="right">売上額</th>
+              <th class="right">件数</th>
+              <th class="right">平均額</th>
+            </tr>
+          </thead>
+          <tbody>`;
+      months.forEach(m => {
+        const d = monthMap[m];
+        tableHtml += `<tr>
+          <td>${m}</td>
+          <td class="right font-bold">${formatMoney(d.total)}</td>
+          <td class="right">${d.cnt}件</td>
+          <td class="right">${formatMoney(Math.round(d.total/d.cnt))}</td>
+        </tr>`;
+      });
+      tableHtml += `</tbody>
+          <tfoot>
+            <tr style="background:#f4f6f9; font-weight:700;">
+              <td>合計</td>
+              <td class="right">${formatMoney(total)}</td>
+              <td class="right">${sales.length}件</td>
+              <td class="right">${formatMoney(avg)}</td>
+            </tr>
+          </tfoot>
+        </table></div>`;
+      document.getElementById('monthTableWrap').innerHTML = tableHtml;
+    }
+
+    // 初回自動集計
+    calcAggregation();
+  </script>
+</body>
+</html>

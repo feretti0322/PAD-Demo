@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .login-hint {
+      background: rgba(44,123,229,0.08);
+      border: 1px dashed #2c7be5;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #555;
+    }
+    .login-hint strong { color: #2c7be5; }
+    .login-hint table { width: 100%; margin-top: 6px; }
+    .login-hint td { padding: 2px 4px; }
+    .login-hint td:first-child { color: #888; width: 90px; }
+    .login-hint td:last-child { font-weight: 700; color: #1a3a5c; }
+    .terms-link { color: #2c7be5; }
+    .error-msg {
+      color: #e63757;
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon">&#128187;</div>
+        <h1>PAD練習サイト</h1>
+        <div class="subtitle">Power Automate for Desktop 操作練習用</div>
+      </div>
+
+      <div class="login-hint">
+        <strong>&#128161; 練習用ログイン情報</strong>
+        <table>
+          <tr><td>ユーザーID</td><td>user</td></tr>
+          <tr><td>パスワード</td><td>pass</td></tr>
+        </table>
+      </div>
+
+      <form id="loginForm" onsubmit="return doLogin(event)">
+        <div class="form-group">
+          <label for="userid">ユーザーID <span class="required">*</span></label>
+          <input type="text" id="userid" class="form-control" placeholder="ユーザーIDを入力してください" autocomplete="username">
+          <div class="error-msg" id="userid-error">ユーザーIDを入力してください</div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">パスワード <span class="required">*</span></label>
+          <input type="password" id="password" class="form-control" placeholder="パスワードを入力してください" autocomplete="current-password">
+          <div class="error-msg" id="password-error">パスワードを入力してください</div>
+        </div>
+
+        <div class="form-check">
+          <input type="checkbox" id="agree" name="agree">
+          <label for="agree">
+            <a href="#" class="terms-link" onclick="return false;">利用規約</a>に同意する
+          </label>
+        </div>
+        <div class="error-msg" id="agree-error" style="margin-top:-12px; margin-bottom:12px;">利用規約への同意が必要です</div>
+
+        <div class="error-msg" id="auth-error" style="font-size:13px; text-align:center; margin-bottom:12px;">
+          ユーザーIDまたはパスワードが正しくありません
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" id="loginBtn">
+          ログイン
+        </button>
+      </form>
+
+      <div style="margin-top: 20px; font-size: 11px; color: #aaa; text-align: center;">
+        &copy; 2025 PAD練習サイト | このサイトはPower Automate for Desktop操作練習用のデモサイトです
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function doLogin(e) {
+      e.preventDefault();
+      const userid = document.getElementById('userid').value.trim();
+      const password = document.getElementById('password').value;
+      const agree = document.getElementById('agree').checked;
+
+      document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+
+      let hasError = false;
+      if (!userid) { document.getElementById('userid-error').style.display = 'block'; hasError = true; }
+      if (!password) { document.getElementById('password-error').style.display = 'block'; hasError = true; }
+      if (!agree) { document.getElementById('agree-error').style.display = 'block'; hasError = true; }
+      if (hasError) return false;
+
+      if (userid !== 'user' || password !== 'pass') {
+        document.getElementById('auth-error').style.display = 'block';
+        return false;
+      }
+
+      const btn = document.getElementById('loginBtn');
+      btn.innerHTML = '<span class="loading"></span> ログイン中...';
+      btn.disabled = true;
+      sessionStorage.setItem('loggedIn', 'true');
+      sessionStorage.setItem('userName', userid);
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+      return false;
+    }
+  </script>
+</body>
+</html>

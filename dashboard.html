@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ダッシュボード | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .chart-canvas-wrap {
+      position: relative;
+      height: 200px;
+      padding: 10px 0 30px;
+    }
+    .simple-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 160px;
+      border-bottom: 2px solid #e0e6ed;
+      border-left: 2px solid #e0e6ed;
+      padding: 0 10px 0 10px;
+      margin-left: 40px;
+    }
+    .s-bar-grp {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .s-bar {
+      width: 100%;
+      border-radius: 3px 3px 0 0;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+    .s-bar:hover { opacity: 0.75; }
+    .s-bar-label {
+      font-size: 10px;
+      color: #888;
+      margin-top: 6px;
+      white-space: nowrap;
+    }
+    .y-axis {
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 30px;
+      width: 36px;
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: space-between;
+    }
+    .y-axis span { font-size: 10px; color: #aaa; text-align: right; padding-right: 4px; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <div class="topbar">
+        <div><div class="topbar-title">ダッシュボード</div></div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">user</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-blue">💰</div>
+            <div class="kpi-label">今月売上額</div>
+            <div class="kpi-value" id="kpiSales">0</div>
+            <div class="kpi-unit">円</div>
+            <div class="kpi-change up">&#9650; 前月比 +12.3%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-orange">🎯</div>
+            <div class="kpi-label">予算額</div>
+            <div class="kpi-value">20,000,000</div>
+            <div class="kpi-unit">円</div>
+            <div class="kpi-change up" id="kpiProgress">達成率 算出中...</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-green">🏢</div>
+            <div class="kpi-label">得意先数</div>
+            <div class="kpi-value">10</div>
+            <div class="kpi-unit">社</div>
+            <div class="kpi-change up">&#9650; 今月 +1社</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-red">📋</div>
+            <div class="kpi-label">今月受注件数</div>
+            <div class="kpi-value" id="kpiCount">0</div>
+            <div class="kpi-unit">件</div>
+            <div class="kpi-change down">&#9660; 前月比 -2件</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>📊 月別売上推移（2025年）</h3></div>
+            <div class="card-body" style="padding: 16px 20px 20px;">
+              <div class="chart-canvas-wrap">
+                <div class="y-axis">
+                  <span>20M</span><span>15M</span><span>10M</span><span>5M</span><span>0</span>
+                </div>
+                <div class="simple-bars" id="barChart"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>🥧 業種別売上実績</h3></div>
+            <div class="card-body">
+              <div style="display:flex; align-items:center; gap:20px;">
+                <svg width="130" height="130" viewBox="0 0 42 42">
+                  <circle cx="21" cy="21" r="15.9" fill="none" stroke="#e0e6ed" stroke-width="6"/>
+                  <circle cx="21" cy="21" r="15.9" fill="none" stroke="#2c7be5" stroke-width="6" stroke-dasharray="37 63" stroke-dashoffset="25" transform="rotate(-90 21 21)"/>
+                  <circle cx="21" cy="21" r="15.9" fill="none" stroke="#00b274" stroke-width="6" stroke-dasharray="28 72" stroke-dashoffset="-12" transform="rotate(-90 21 21)"/>
+                  <circle cx="21" cy="21" r="15.9" fill="none" stroke="#f6c343" stroke-width="6" stroke-dasharray="22 78" stroke-dashoffset="-40" transform="rotate(-90 21 21)"/>
+                  <circle cx="21" cy="21" r="15.9" fill="none" stroke="#e63757" stroke-width="6" stroke-dasharray="13 87" stroke-dashoffset="-62" transform="rotate(-90 21 21)"/>
+                </svg>
+                <div>
+                  <div class="legend-item"><div class="legend-dot" style="background:#2c7be5;width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;"></div><span>製造業 37%</span></div>
+                  <div class="legend-item" style="margin-top:6px;"><div class="legend-dot" style="background:#00b274;width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;"></div><span>サービス業 28%</span></div>
+                  <div class="legend-item" style="margin-top:6px;"><div class="legend-dot" style="background:#f6c343;width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;"></div><span>飲食業 22%</span></div>
+                  <div class="legend-item" style="margin-top:6px;"><div class="legend-dot" style="background:#e63757;width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;"></div><span>その他 13%</span></div>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <table style="width:100%; font-size:13px; border-collapse:collapse;">
+                <thead><tr>
+                  <th style="background:none;color:#888;font-size:11px;padding:4px 8px;text-align:left;">業種</th>
+                  <th style="background:none;color:#888;font-size:11px;padding:4px 8px;text-align:right;">売上額</th>
+                  <th style="background:none;color:#888;font-size:11px;padding:4px 8px;text-align:right;">件数</th>
+                </tr></thead>
+                <tbody>
+                  <tr><td style="padding:6px 8px;">製造業</td><td style="padding:6px 8px;text-align:right;font-weight:700;">¥5,960,000</td><td style="padding:6px 8px;text-align:right;">12件</td></tr>
+                  <tr><td style="padding:6px 8px;">サービス業</td><td style="padding:6px 8px;text-align:right;font-weight:700;">¥4,500,000</td><td style="padding:6px 8px;text-align:right;">9件</td></tr>
+                  <tr><td style="padding:6px 8px;">飲食業</td><td style="padding:6px 8px;text-align:right;font-weight:700;">¥3,530,000</td><td style="padding:6px 8px;text-align:right;">6件</td></tr>
+                  <tr><td style="padding:6px 8px;">その他</td><td style="padding:6px 8px;text-align:right;font-weight:700;">¥2,170,000</td><td style="padding:6px 8px;text-align:right;">3件</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>🕐 最近の売上（直近5件）</h3>
+            <a href="sales-list.html" class="btn btn-outline btn-sm">すべて見る</a>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+              <table>
+                <thead><tr><th>売上ID</th><th>売上日</th><th>得意先名称</th><th class="right">売上額</th><th>備考</th></tr></thead>
+                <tbody id="recentTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="app-footer">&copy; 2025 PAD練習サイト | Power Automate for Desktop 操作練習用デモサイト</div>
+    </div>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('dashboard');
+    const userName = sessionStorage.getItem('userName') || 'user';
+    document.getElementById('userName').textContent = userName;
+    document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+
+    const totalSales = SALES_DATA.reduce((s, r) => s + r.amount, 0);
+    document.getElementById('kpiSales').textContent = totalSales.toLocaleString('ja-JP');
+    document.getElementById('kpiCount').textContent = SALES_DATA.length;
+    const rate = Math.round(totalSales / 20000000 * 100);
+    document.getElementById('kpiProgress').textContent = '達成率 ' + rate + '%';
+
+    const recent = SALES_DATA.slice(-5).reverse();
+    const tbody = document.getElementById('recentTbody');
+    recent.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><span class="text-muted">${r.id}</span></td><td>${r.date}</td><td><strong>${r.customerName}</strong></td><td class="right font-bold">${formatMoney(r.amount)}</td><td><span class="text-muted">${r.note || '-'}</span></td>`;
+      tbody.appendChild(tr);
+    });
+
+    const monthData = [
+      { label: '1月', val: 14800000 }, { label: '2月', val: 12300000 },
+      { label: '3月', val: 16500000 }, { label: '4月', val: totalSales },
+      { label: '5月', val: 0 }, { label: '6月', val: 0 },
+    ];
+    const maxVal = 20000000;
+    const chart = document.getElementById('barChart');
+    monthData.forEach(m => {
+      const pct = m.val > 0 ? Math.round(m.val / maxVal * 100) : 0;
+      const grp = document.createElement('div');
+      grp.className = 's-bar-grp';
+      grp.innerHTML = `<div class="s-bar" style="height:${pct}%; background: ${m.val === totalSales ? '#2c7be5' : '#a8d4ff'};" title="${m.label}: ${m.val > 0 ? formatMoney(m.val) : '未確定'}"></div><div class="s-bar-label">${m.label}</div>`;
+      chart.appendChild(grp);
+    });
+  </script>
+</body>
+</html>

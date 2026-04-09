@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>売上一覧 | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .total-bar {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 12px 20px;
+      background: linear-gradient(90deg, #1a3a5c, #2c7be5);
+      color: #fff;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .total-bar .total-item { text-align: center; }
+    .total-bar .total-label { font-size: 11px; opacity: 0.75; }
+    .total-bar .total-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
+    .total-bar .divider-v { width: 1px; height: 40px; background: rgba(255,255,255,0.3); }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">売上一覧</div>
+          <div class="breadcrumb">ホーム &rsaquo; 売上一覧</div>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">user</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- 集計バー -->
+        <div class="total-bar">
+          <div class="total-item">
+            <div class="total-label">表示件数</div>
+            <div class="total-value" id="totalCount">0件</div>
+          </div>
+          <div class="divider-v"></div>
+          <div class="total-item">
+            <div class="total-label">合計売上額</div>
+            <div class="total-value" id="totalAmount">¥0</div>
+          </div>
+          <div class="divider-v"></div>
+          <div class="total-item">
+            <div class="total-label">平均売上額</div>
+            <div class="total-value" id="avgAmount">¥0</div>
+          </div>
+          <div style="margin-left:auto; display:flex; gap:8px;">
+            <button class="btn btn-outline btn-sm" style="color:#fff; border-color:rgba(255,255,255,0.4);" onclick="downloadCSV()">
+              &#128190; CSV形式でダウンロード
+            </button>
+            <button class="btn btn-outline btn-sm" style="color:#fff; border-color:rgba(255,255,255,0.4);" onclick="downloadPDF()">
+              &#128196; PDF形式でダウンロード
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <!-- フィルターバー -->
+          <div class="filter-bar">
+            <div class="filter-group">
+              <label>売上日（From）</label>
+              <input type="date" id="filterFrom" class="form-control" onchange="applyFilter()">
+            </div>
+            <div class="filter-group">
+              <label>売上日（To）</label>
+              <input type="date" id="filterTo" class="form-control" onchange="applyFilter()">
+            </div>
+            <div class="filter-group">
+              <label>得意先</label>
+              <select id="filterCustomer" class="form-control" onchange="applyFilter()">
+                <option value="">すべての得意先</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>売上額（最小）</label>
+              <input type="number" id="filterMin" class="form-control" placeholder="例：100000" style="width:120px;" oninput="applyFilter()">
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="clearFilter()">&#x2715; クリア</button>
+            <div style="margin-left:auto;">
+              <a href="sales-input.html" class="btn btn-primary btn-sm">&#43; 売上入力</a>
+            </div>
+          </div>
+
+          <!-- テーブル -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>売上ID</th>
+                  <th>売上日 <span style="cursor:pointer; font-size:10px;" onclick="toggleSort('date')">&#9650;&#9660;</span></th>
+                  <th>得意先名称</th>
+                  <th class="right">売上額 <span style="cursor:pointer; font-size:10px;" onclick="toggleSort('amount')">&#9650;&#9660;</span></th>
+                  <th>備考</th>
+                </tr>
+              </thead>
+              <tbody id="salesTbody"></tbody>
+            </table>
+          </div>
+
+          <!-- ページネーション -->
+          <div class="pagination">
+            <div class="page-info" id="pageInfo"></div>
+            <button class="page-btn" id="prevBtn" onclick="changePage(-1)">&#8249;</button>
+            <div id="pageNumbers"></div>
+            <button class="page-btn" id="nextBtn" onclick="changePage(1)">&#8250;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-footer">
+        &copy; 2025 PAD練習サイト
+      </div>
+    </div>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('sales-list');
+    const uname = sessionStorage.getItem('userName') || 'user';
+    document.getElementById('userName').textContent = uname;
+    document.getElementById('userAvatar').textContent = uname.charAt(0).toUpperCase();
+
+    let salesData = JSON.parse(sessionStorage.getItem('salesData') || 'null') || [...SALES_DATA];
+    let currentPage = 1;
+    const PER_PAGE = 10;
+    let sortKey = 'date';
+    let sortAsc = false;
+
+    // 得意先フィルター選択肢
+    const custSel = document.getElementById('filterCustomer');
+    CUSTOMERS.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      custSel.appendChild(opt);
+    });
+
+    function getFiltered() {
+      const from = document.getElementById('filterFrom').value;
+      const to = document.getElementById('filterTo').value;
+      const cust = document.getElementById('filterCustomer').value;
+      const minA = parseInt(document.getElementById('filterMin').value) || 0;
+
+      return salesData.filter(s => {
+        const d = s.date.replace(/\//g, '-');
+        if (from && d < from) return false;
+        if (to && d > to) return false;
+        if (cust && s.customerId !== cust) return false;
+        if (minA && s.amount < minA) return false;
+        return true;
+      });
+    }
+
+    function getSorted(arr) {
+      return [...arr].sort((a, b) => {
+        let va = a[sortKey], vb = b[sortKey];
+        if (sortKey === 'date') { va = va.replace(/\//g, ''); vb = vb.replace(/\//g, ''); }
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function toggleSort(key) {
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = true; }
+      renderTable();
+    }
+
+    function renderTable() {
+      const filtered = getSorted(getFiltered());
+      const totalPages = Math.ceil(filtered.length / PER_PAGE) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      const start = (currentPage - 1) * PER_PAGE;
+      const pageData = filtered.slice(start, start + PER_PAGE);
+
+      const totalAmt = filtered.reduce((s, r) => s + r.amount, 0);
+      const avgAmt = filtered.length > 0 ? Math.round(totalAmt / filtered.length) : 0;
+      document.getElementById('totalCount').textContent = filtered.length + '件';
+      document.getElementById('totalAmount').textContent = formatMoney(totalAmt);
+      document.getElementById('avgAmount').textContent = formatMoney(avgAmt);
+
+      const tbody = document.getElementById('salesTbody');
+      tbody.innerHTML = '';
+      if (pageData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:32px;">該当するデータがありません</td></tr>';
+      } else {
+        pageData.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><span class="text-muted">${r.id}</span></td>
+            <td>${r.date}</td>
+            <td><strong>${r.customerName}</strong></td>
+            <td class="right font-bold">${formatMoney(r.amount)}</td>
+            <td><span class="text-muted">${r.note || '-'}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('pageInfo').textContent = `全${filtered.length}件中 ${start+1}〜${Math.min(start+PER_PAGE, filtered.length)}件表示`;
+
+      const pn = document.getElementById('pageNumbers');
+      pn.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+        btn.textContent = i;
+        btn.onclick = () => { currentPage = i; renderTable(); };
+        pn.appendChild(btn);
+      }
+      document.getElementById('prevBtn').classList.toggle('disabled', currentPage === 1);
+      document.getElementById('nextBtn').classList.toggle('disabled', currentPage === totalPages);
+    }
+
+    function applyFilter() { currentPage = 1; renderTable(); }
+
+    function clearFilter() {
+      document.getElementById('filterFrom').value = '';
+      document.getElementById('filterTo').value = '';
+      document.getElementById('filterCustomer').value = '';
+      document.getElementById('filterMin').value = '';
+      applyFilter();
+    }
+
+    function changePage(dir) {
+      const filtered = getFiltered();
+      const totalPages = Math.ceil(filtered.length / PER_PAGE) || 1;
+      currentPage = Math.max(1, Math.min(totalPages, currentPage + dir));
+      renderTable();
+    }
+
+    function downloadCSV() {
+      const filtered = getSorted(getFiltered());
+      let csv = '\uFEFF売上ID,売上日,得意先名称,売上額,備考\n';
+      filtered.forEach(r => {
+        csv += `${r.id},${r.date},${r.customerName},${r.amount},${r.note || ''}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '売上一覧.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadPDF() {
+      const filtered = getSorted(getFiltered());
+      let html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">
+      <title>売上一覧</title>
+      <style>
+        body { font-family: 'Yu Gothic','游ゴシック',sans-serif; font-size:12px; padding:20px; }
+        h2 { color: #1a3a5c; margin-bottom:16px; }
+        table { width:100%; border-collapse:collapse; }
+        th { background:#1a3a5c; color:#fff; padding:8px; text-align:left; font-size:11px; }
+        td { padding:7px 8px; border-bottom:1px solid #e0e6ed; }
+        tr:nth-child(even) td { background:#f8fafc; }
+        .total { margin-top:12px; text-align:right; font-weight:700; font-size:14px; }
+      </style></head><body>
+      <h2>売上一覧</h2>
+      <table><thead><tr><th>売上ID</th><th>売上日</th><th>得意先名称</th><th>売上額</th><th>備考</th></tr></thead><tbody>`;
+      filtered.forEach(r => {
+        html += `<tr><td>${r.id}</td><td>${r.date}</td><td>${r.customerName}</td><td style="text-align:right;">¥${r.amount.toLocaleString()}</td><td>${r.note||''}</td></tr>`;
+      });
+      const total = filtered.reduce((s, r) => s + r.amount, 0);
+      html += `</tbody></table><div class="total">合計：¥${total.toLocaleString()}</div></body></html>`;
+      const w = window.open('', '_blank');
+      w.document.write(html);
+      w.document.close();
+      setTimeout(() => w.print(), 500);
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
