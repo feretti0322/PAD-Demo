@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PADとは | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ヒーローセクション */
+    .hero-section {
+      background: linear-gradient(135deg, #1a3a5c 0%, #2c7be5 100%);
+      border-radius: 12px;
+      padding: 40px 36px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .hero-section h2 {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+    .hero-section p {
+      font-size: 15px;
+      line-height: 1.8;
+      opacity: 0.92;
+      margin: 0;
+      max-width: 680px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    /* できることカード */
+    .feature-card {
+      background: #fff;
+      border: 1px solid #e0e6ed;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      box-shadow: 0 4px 16px rgba(44,123,229,0.13);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    .feature-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a3a5c;
+      margin: 0 0 6px;
+    }
+    .feature-card p {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    /* フロー図 */
+    .flow-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 8px 0;
+    }
+    .flow-node {
+      background: #f0f5ff;
+      border: 2px solid #2c7be5;
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+      min-width: 110px;
+    }
+    .flow-node .flow-label {
+      font-size: 11px;
+      color: #2c7be5;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .flow-node .flow-text {
+      font-size: 13px;
+      color: #1a3a5c;
+      font-weight: 700;
+    }
+    .flow-node.loop-node {
+      background: #fff8e1;
+      border-color: #f6c343;
+    }
+    .flow-node.loop-node .flow-label { color: #b8860b; }
+    .flow-node.loop-node .flow-text { color: #7d5a00; }
+    .flow-node.end-node {
+      background: #e8f8f2;
+      border-color: #00b274;
+    }
+    .flow-node.end-node .flow-label { color: #007a50; }
+    .flow-node.end-node .flow-text { color: #005236; }
+    .flow-arrow {
+      font-size: 20px;
+      color: #2c7be5;
+      font-weight: 700;
+    }
+
+    /* 比較カード (PAD vs 生成AI) */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .compare-card {
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .compare-card.pad-card {
+      background: #f0f5ff;
+      border: 2px solid #2c7be5;
+    }
+    .compare-card.ai-card {
+      background: #f5f0ff;
+      border: 2px solid #7c3aed;
+    }
+    .compare-card h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .compare-card.pad-card h4 { color: #1a3a5c; }
+    .compare-card.ai-card h4 { color: #4c1d95; }
+    .compare-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .compare-list li {
+      font-size: 13px;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      line-height: 1.5;
+    }
+    .compare-list li:last-child { border-bottom: none; }
+    .compare-list li::before {
+      margin-right: 6px;
+    }
+    .compare-card.pad-card .compare-list li::before { content: '✅'; }
+    .compare-card.ai-card .compare-list li::before { content: '✨'; }
+
+    /* 判断チャート */
+    .decision-chart {
+      background: #f8f9fc;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-top: 4px;
+    }
+    .decision-chart h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a3a5c;
+      margin: 0 0 14px;
+    }
+    .decision-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e6ed;
+    }
+    .decision-row:last-child { border-bottom: none; }
+    .decision-q {
+      flex: 1;
+      font-size: 13px;
+      color: #333;
+    }
+    .decision-a {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+    .decision-a.use-pad { background: #dbeafe; color: #1d4ed8; }
+    .decision-a.use-ai { background: #ede9fe; color: #5b21b6; }
+    .decision-a.use-both { background: #d1fae5; color: #065f46; }
+
+    /* ロードマップ */
+    .roadmap {
+      display: flex;
+      gap: 0;
+      position: relative;
+      margin-top: 4px;
+    }
+    .roadmap::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 28px;
+      right: 28px;
+      height: 3px;
+      background: linear-gradient(90deg, #2c7be5, #00b274);
+      z-index: 0;
+    }
+    .roadmap-step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .roadmap-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #2c7be5;
+      color: #fff;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(44,123,229,0.3);
+    }
+    .roadmap-step:last-child .roadmap-circle {
+      background: #00b274;
+      box-shadow: 0 2px 8px rgba(0,178,116,0.3);
+    }
+    .roadmap-step h5 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a3a5c;
+      margin: 0 0 4px;
+    }
+    .roadmap-step p {
+      font-size: 11px;
+      color: #777;
+      margin: 0;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">📖 PADとは</div>
+        <div class="topbar-user">
+          <span>👤</span>
+          <span id="topbarUser">user</span>
+        </div>
+      </header>
+
+      <main class="page-content">
+
+        <!-- ヒーローセクション -->
+        <div class="hero-section">
+          <div class="hero-badge">Power Automate for Desktop</div>
+          <h2>PADとは何か？</h2>
+          <p>
+            Power Automate for Desktop（PAD）は、Microsoftが提供する<strong>デスクトップ自動化ツール</strong>です。<br>
+            プログラミングの知識がなくても、マウス操作・キーボード入力・ファイル操作・Web閲覧など、
+            パソコン上のあらゆる繰り返し作業を自動化できます。<br>
+            Windows 11では無償で利用でき、現在多くの企業で業務効率化に活用されています。
+          </p>
+        </div>
+
+        <!-- PADでできること -->
+        <div class="card">
+          <div class="card-header"><h3>PADでできること</h3></div>
+          <div class="card-body">
+            <div class="grid-4">
+              <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h4>Web操作の自動化</h4>
+                <p>ブラウザを自動で開き、フォーム入力・データ取得・ボタンクリックを自動実行</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h4>ファイル操作</h4>
+                <p>ファイルのコピー・移動・削除・名前変更・フォルダ整理を自動化</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h4>Excel自動化</h4>
+                <p>Excelを開いてデータ入力・集計・フォーマット整形・保存まで全自動</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">📧</div>
+                <h4>メール送受信</h4>
+                <p>OutlookやGmailと連携し、自動でメール送信・添付・フォルダ振り分け</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">🖱️</div>
+                <h4>画面操作の記録</h4>
+                <p>「レコーダー機能」で実際の操作を記録するだけでフローが自動生成</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h4>繰り返し処理</h4>
+                <p>100件のデータを1件ずつ処理するような繰り返し作業を高速自動化</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">🗃️</div>
+                <h4>データベース連携</h4>
+                <p>AccessやSQL Serverからデータを取得・更新し業務システムと連携</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">🖥️</div>
+                <h4>アプリ操作</h4>
+                <p>社内の業務システム・レガシーアプリも画面を直接操作して自動化可能</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PADの動作イメージ -->
+        <div class="card">
+          <div class="card-header"><h3>PADの動作イメージ（フロー構造）</h3></div>
+          <div class="card-body">
+            <p style="font-size:13px; color:#666; margin-bottom:16px;">
+              PADは「フロー」と呼ばれる処理の流れを作成します。フローは以下のような構造で動きます。
+            </p>
+            <div class="flow-wrap">
+              <div class="flow-node">
+                <div class="flow-label">STEP 1</div>
+                <div class="flow-text">🚀 フロー開始</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node">
+                <div class="flow-label">STEP 2</div>
+                <div class="flow-text">📂 ファイルを開く</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node loop-node">
+                <div class="flow-label">LOOP</div>
+                <div class="flow-text">🔁 各行を処理</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node">
+                <div class="flow-label">STEP 3</div>
+                <div class="flow-text">✏️ データを入力</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node">
+                <div class="flow-label">STEP 4</div>
+                <div class="flow-text">💾 保存・送信</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node end-node">
+                <div class="flow-label">END</div>
+                <div class="flow-text">✅ 完了</div>
+              </div>
+            </div>
+            <p style="font-size:12px; color:#888; margin-top:14px;">
+              ※ 条件分岐（If文）・ループ（For Each文）など、プログラミングの概念をドラッグ&ドロップで組み立てられます。
+            </p>
+          </div>
+        </div>
+
+        <!-- PAD vs 生成AI -->
+        <div class="card">
+          <div class="card-header"><h3>PADと生成AIの違い・使い分け</h3></div>
+          <div class="card-body">
+            <div class="compare-grid">
+              <div class="compare-card pad-card">
+                <h4>💻 PADが得意なこと</h4>
+                <ul class="compare-list">
+                  <li>決まった手順の繰り返し作業</li>
+                  <li>特定の画面・ファイルへの正確な操作</li>
+                  <li>大量データの一括処理</li>
+                  <li>毎日・毎週の定型業務の完全自動化</li>
+                  <li>社内システムとの連携（Excelなど）</li>
+                  <li>処理結果が常に同じである作業</li>
+                </ul>
+              </div>
+              <div class="compare-card ai-card">
+                <h4>🤖 生成AIが得意なこと</h4>
+                <ul class="compare-list">
+                  <li>文章の要約・翻訳・作成</li>
+                  <li>曖昧な質問への回答・相談</li>
+                  <li>アイデア出し・壁打ち</li>
+                  <li>コードや企画書の下書き作成</li>
+                  <li>状況に応じた柔軟な判断</li>
+                  <li>自然言語での指示で動く処理</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- 判断チャート -->
+            <div class="decision-chart">
+              <h4>🤔 どんな時にPADを使うべきか？</h4>
+              <div class="decision-row">
+                <div class="decision-q">📋 毎月同じ手順でExcelにデータを転記している</div>
+                <div class="decision-a use-pad">→ PADで自動化！</div>
+              </div>
+              <div class="decision-row">
+                <div class="decision-q">📝 会議の議事録を要約してメールの文章を作りたい</div>
+                <div class="decision-a use-ai">→ 生成AIにお任せ</div>
+              </div>
+              <div class="decision-row">
+                <div class="decision-q">🔁 Webサイトから100件のデータをコピー&ペーストしている</div>
+                <div class="decision-a use-pad">→ PADで自動化！</div>
+              </div>
+              <div class="decision-row">
+                <div class="decision-q">💡 新しい企画のアイデアを考えたい</div>
+                <div class="decision-a use-ai">→ 生成AIにお任せ</div>
+              </div>
+              <div class="decision-row">
+                <div class="decision-q">📊 Excelデータを集計後、生成AIで分析コメントを自動生成したい</div>
+                <div class="decision-a use-both">→ PAD＋生成AIで連携！</div>
+              </div>
+              <div class="decision-row">
+                <div class="decision-q">📧 条件に応じて自動でメールを送り分けたい</div>
+                <div class="decision-a use-pad">→ PADで自動化！</div>
+              </div>
+            </div>
+            <p style="font-size:12px; color:#888; margin-top:12px;">
+              💡 ポイント：<strong>「手順が決まっていて繰り返す作業」</strong>はPAD、<strong>「内容が毎回変わる・判断が必要な作業」</strong>は生成AIが向いています。両者を組み合わせると最強の業務効率化が実現できます！
+            </p>
+          </div>
+        </div>
+
+        <!-- 比較表 -->
+        <div class="card">
+          <div class="card-header"><h3>PAD・Excel VBA・他ツールとの比較</h3></div>
+          <div class="card-body">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>項目</th>
+                    <th style="text-align:center;">PAD</th>
+                    <th style="text-align:center;">Excel VBA</th>
+                    <th style="text-align:center;">Python</th>
+                    <th style="text-align:center;">生成AI</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>プログラミング不要</td>
+                    <td style="text-align:center;"><span class="badge badge-success">◎</span></td>
+                    <td style="text-align:center;"><span class="badge badge-warning">△</span></td>
+                    <td style="text-align:center;"><span class="badge badge-danger">✗</span></td>
+                    <td style="text-align:center;"><span class="badge badge-success">◎</span></td>
+                  </tr>
+                  <tr>
+                    <td>Web・画面操作の自動化</td>
+                    <td style="text-align:center;"><span class="badge badge-success">◎</span></td>
+                    <td style="text-align:center;"><span class="badge badge-danger">✗</span></td>
+                    <td style="text-align:center;"><span class="badge badge-info">○</span></td>
+                    <td style="text-align:center;"><span class="badge badge-danger">✗</span></td>
+                  </tr>
+                  <tr>
+                    <td>Excel操作</td>
+                    <td style="text-align:center;"><span class="badge badge-info">○</span></td>
+                    <td style="text-align:center;"><span class="badge badge-success">◎</span></td>
+                    <td style="text-align:center;"><span class="badge badge-info">○</span></td>
+                    <td style="text-align:center;"><span class="badge badge-warning">△</span></td>
+                  </tr>
+                  <tr>
+                    <td>文章・アイデア生成</td>
+                    <td style="text-align:center;"><span class="badge badge-danger">✗</span></td>
+                    <td style="text-align:center;"><span class="badge badge-danger">✗</span></td>
+                    <td style="text-align:center;"><span class="badge badge-warning">△</span></td>
+                    <td style="text-align:center;"><span class="badge badge-success">◎</span></td>
+                  </tr>
+                  <tr>
+                    <td>スケジュール実行</td>
+                    <td style="text-align:center;"><span class="badge badge-success">◎</span></td>
+                    <td style="text-align:center;"><span class="badge badge-warning">△</span></td>
+                    <td style="text-align:center;"><span class="badge badge-info">○</span></td>
+                    <td style="text-align:center;"><span class="badge badge-danger">✗</span></td>
+                  </tr>
+                  <tr>
+                    <td>初期コスト（Windows11）</td>
+                    <td style="text-align:center;"><span class="badge badge-success">無料</span></td>
+                    <td style="text-align:center;"><span class="badge badge-info">Excel付属</span></td>
+                    <td style="text-align:center;"><span class="badge badge-success">無料</span></td>
+                    <td style="text-align:center;"><span class="badge badge-warning">有料プランも</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 学習ロードマップ -->
+        <div class="card">
+          <div class="card-header"><h3>PAD学習ロードマップ</h3></div>
+          <div class="card-body">
+            <div class="roadmap">
+              <div class="roadmap-step">
+                <div class="roadmap-circle">💾</div>
+                <h5>STEP 1</h5>
+                <p>インストール<br>& 起動</p>
+              </div>
+              <div class="roadmap-step">
+                <div class="roadmap-circle">🖱️</div>
+                <h5>STEP 2</h5>
+                <p>基本操作<br>& レコーダー</p>
+              </div>
+              <div class="roadmap-step">
+                <div class="roadmap-circle">🔤</div>
+                <h5>STEP 3</h5>
+                <p>変数を<br>使ってみる</p>
+              </div>
+              <div class="roadmap-step">
+                <div class="roadmap-circle">🔀</div>
+                <h5>STEP 4</h5>
+                <p>条件分岐<br>（If文）</p>
+              </div>
+              <div class="roadmap-step">
+                <div class="roadmap-circle">🔁</div>
+                <h5>STEP 5</h5>
+                <p>ループ処理<br>（繰り返し）</p>
+              </div>
+              <div class="roadmap-step">
+                <div class="roadmap-circle">🚀</div>
+                <h5>GOAL</h5>
+                <p>実務フロー<br>を作成！</p>
+              </div>
+            </div>
+            <p style="font-size:12px; color:#888; margin-top:20px; text-align:center;">
+              このサイトでは「変数を学ぼう」ページでSTEP 3の内容を練習できます！
+            </p>
+          </div>
+        </div>
+
+      </main>
+      <footer class="app-footer">© 2025 PAD練習サイト</footer>
+    </div>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('pad-overview');
+    const u = sessionStorage.getItem('userName') || 'user';
+    document.getElementById('topbarUser').textContent = u;
+  </script>
+</body>
+</html>

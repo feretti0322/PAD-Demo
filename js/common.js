@@ -11,7 +11,12 @@ function checkLogin() {
 
 // サイドバー共通HTML生成
 function renderSidebar(activePage) {
-  const pages = [
+  const learnPages = [
+    { id: 'pad-overview', icon: '📖', label: 'PADとは', href: 'pad-overview.html' },
+    { id: 'pad-variables', icon: '🔤', label: '変数を学ぼう', href: 'pad-variables.html' },
+  ];
+
+  const demoPages = [
     { id: 'dashboard', icon: '📊', label: 'ダッシュボード', href: 'dashboard.html' },
     { id: 'customer', icon: '🏢', label: '得意先一覧', href: 'customer.html' },
     { id: 'sales-input', icon: '✏️', label: '売上入力', href: 'sales-input.html' },
@@ -20,7 +25,7 @@ function renderSidebar(activePage) {
     { id: 'campaign', icon: '📣', label: 'キャンペーン管理', href: 'campaign.html' },
   ];
 
-  const navItems = pages.map(p => `
+  const makeNavItems = pages => pages.map(p => `
     <a href="${p.href}" class="nav-item ${activePage === p.id ? 'active' : ''}">
       <span class="nav-icon">${p.icon}</span>
       ${p.label}
@@ -35,8 +40,10 @@ function renderSidebar(activePage) {
         <div class="brand-sub">Power Automate for Desktop</div>
       </div>
       <nav class="sidebar-nav">
-        <div class="nav-section">メニュー</div>
-        ${navItems}
+        <div class="nav-section">学習</div>
+        ${makeNavItems(learnPages)}
+        <div class="nav-section" style="margin-top:8px;">業務デモ</div>
+        ${makeNavItems(demoPages)}
       </nav>
       <div class="sidebar-footer">
         ログイン中: <strong>${sessionStorage.getItem('userName') || 'user'}</strong>
