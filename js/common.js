@@ -14,6 +14,7 @@ function renderSidebar(activePage) {
   const learnPages = [
     { id: 'pad-overview', icon: '📖', label: 'PADとは', href: 'pad-overview.html' },
     { id: 'pad-variables', icon: '🔤', label: '変数を学ぼう', href: 'pad-variables.html' },
+    { id: 'pad-variables-eq', icon: '🔢', label: '変数を学ぼう（方程式ver）', href: 'pad-variables-eq.html' },
   ];
 
   const demoPages = [
