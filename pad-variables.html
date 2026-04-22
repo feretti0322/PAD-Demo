@@ -6,248 +6,133 @@
   <title>変数を学ぼう | PAD練習サイト</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* ページヘッダー */
     .learn-hero {
       background: linear-gradient(135deg, #1a3a5c 0%, #0d7377 100%);
       border-radius: 12px;
-      padding: 32px 36px;
+      padding: 36px;
       color: #fff;
       margin-bottom: 24px;
     }
-    .learn-hero .hero-badge {
-      display: inline-block;
-      background: rgba(255,255,255,0.2);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 20px;
-      padding: 4px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-    .learn-hero h2 { font-size: 24px; font-weight: 700; margin: 0 0 10px; }
-    .learn-hero p { font-size: 14px; opacity: 0.9; margin: 0; line-height: 1.7; }
+    .learn-hero h2 { font-size: 24px; font-weight: 700; margin: 0 0 12px; }
+    .learn-hero p { font-size: 15px; line-height: 1.9; margin: 0; opacity: 0.95; }
 
-    /* 変数の概念図 */
-    .box-concept {
+    /* 箱ビジュアル */
+    .box-visual {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 20px;
       flex-wrap: wrap;
-      padding: 8px 0;
+      justify-content: center;
+      padding: 12px 0 20px;
     }
-    .var-box {
-      background: #f0f5ff;
-      border: 3px solid #2c7be5;
+    .magic-box {
+      background: #0d9488;
       border-radius: 12px;
-      padding: 16px 20px;
-      text-align: center;
-      min-width: 130px;
-    }
-    .var-box-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #2c7be5;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-    .var-box-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: #1a3a5c;
-      background: #dbeafe;
-      border-radius: 6px;
-      padding: 4px 10px;
-      margin-bottom: 6px;
-      font-family: 'Courier New', monospace;
-    }
-    .var-box-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1d4ed8;
-    }
-    .concept-arrow {
-      font-size: 28px;
-      color: #2c7be5;
-    }
-    .concept-text {
-      flex: 1;
-      min-width: 200px;
-    }
-    .concept-text h4 {
-      font-size: 15px;
-      font-weight: 700;
-      color: #1a3a5c;
-      margin: 0 0 8px;
-    }
-    .concept-text p {
-      font-size: 13px;
-      color: #555;
-      line-height: 1.7;
-      margin: 0;
-    }
-    .concept-text code {
-      background: #f0f5ff;
-      border: 1px solid #c3d9ff;
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      color: #1d4ed8;
-    }
-
-    /* 変数の種類カード */
-    .type-card {
-      border-radius: 10px;
-      padding: 18px;
-      border: 2px solid;
-    }
-    .type-card.type-text { background: #fff8e1; border-color: #f6c343; }
-    .type-card.type-number { background: #e8f4fd; border-color: #2c7be5; }
-    .type-card.type-bool { background: #e8f8f2; border-color: #00b274; }
-    .type-card.type-list { background: #fce8f8; border-color: #a855f7; }
-    .type-card.type-datatable { background: #fef3f2; border-color: #e63757; }
-
-    .type-card-header {
+      width: 120px;
+      height: 90px;
       display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .type-icon { font-size: 24px; }
-    .type-name { font-size: 14px; font-weight: 700; color: #1a3a5c; }
-    .type-en { font-size: 11px; color: #888; font-weight: 400; }
-    .type-desc { font-size: 12px; color: #555; line-height: 1.6; margin-bottom: 10px; }
-    .type-example {
-      background: rgba(255,255,255,0.7);
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 12px;
-      font-family: 'Courier New', monospace;
-      color: #333;
-    }
-    .type-example .ex-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: #888;
-      text-transform: uppercase;
-      margin-bottom: 3px;
-      font-family: sans-serif;
-    }
-
-    /* PADでの使い方ステップ */
-    .step-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .step-item {
-      display: flex;
-      gap: 16px;
-      padding: 16px 0;
-      border-bottom: 1px solid #e0e6ed;
-      align-items: flex-start;
-    }
-    .step-item:last-child { border-bottom: none; }
-    .step-num {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #2c7be5;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 700;
-      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-    }
-    .step-content h4 {
-      font-size: 14px;
+      color: #fff;
       font-weight: 700;
-      color: #1a3a5c;
-      margin: 0 0 4px;
+      box-shadow: 0 4px 16px rgba(13,148,136,0.3);
     }
-    .step-content p {
-      font-size: 13px;
-      color: #555;
-      line-height: 1.6;
-      margin: 0 0 8px;
+    .magic-box .box-label {
+      font-size: 11px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 4px;
+      padding: 2px 8px;
+      margin-bottom: 6px;
     }
-    .step-visual {
-      background: #f4f6f9;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 12px;
-      color: #444;
-      border-left: 3px solid #2c7be5;
-      line-height: 1.7;
-    }
-    .step-visual code {
-      background: #e8f0fe;
-      border-radius: 3px;
-      padding: 1px 5px;
-      font-family: 'Courier New', monospace;
-      color: #1d4ed8;
-    }
+    .magic-box .box-value { font-size: 20px; }
+    .box-arrow { font-size: 26px; color: #2c7be5; font-weight: 700; }
 
-    /* 命名規則 */
-    .rule-grid {
+    /* ポイントブロック */
+    .point-block {
+      background: #f4f6f9;
+      border-left: 4px solid #2c7be5;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.9;
+      color: #333;
+      margin-top: 16px;
+    }
+    .point-block strong { color: #1a3a5c; }
+
+    /* 変数を使わない vs 使う比較 */
+    .compare-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 16px;
+      margin-bottom: 16px;
     }
-    .rule-card {
-      border-radius: 8px;
-      padding: 14px 16px;
-    }
-    .rule-card.good { background: #e8f8f2; border: 1px solid #00b274; }
-    .rule-card.bad { background: #fef3f2; border: 1px solid #e63757; }
-    .rule-card h4 {
-      font-size: 13px;
-      font-weight: 700;
-      margin: 0 0 8px;
-    }
-    .rule-card.good h4 { color: #065f46; }
-    .rule-card.bad h4 { color: #991b1b; }
-    .rule-item {
-      font-size: 12px;
-      font-family: 'Courier New', monospace;
-      padding: 3px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .rule-item:last-child { border-bottom: none; }
-    .rule-item .rule-mark { font-size: 12px; }
-    .rule-reason { font-size: 11px; color: #777; font-family: sans-serif; }
-
-    /* まとめボックス */
-    .summary-box {
-      background: linear-gradient(135deg, #f0f5ff 0%, #e8f8f2 100%);
-      border: 2px solid #2c7be5;
+    .compare-box {
       border-radius: 10px;
-      padding: 20px 24px;
-      margin-top: 4px;
+      padding: 18px;
     }
-    .summary-box h4 {
-      font-size: 14px;
-      font-weight: 700;
-      color: #1a3a5c;
-      margin: 0 0 12px;
-    }
-    .summary-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .summary-list li {
+    .compare-box.bad  { background: #fff4f4; border: 2px solid #f87171; }
+    .compare-box.good { background: #f0fdf4; border: 2px solid #34d399; }
+    .compare-box h4 { font-size: 14px; font-weight: 700; margin: 0 0 10px; }
+    .compare-box.bad  h4 { color: #b91c1c; }
+    .compare-box.good h4 { color: #065f46; }
+    .compare-box p { font-size: 13px; color: #444; line-height: 1.8; margin: 0; }
+    .code-block {
+      background: #1e293b;
+      color: #7dd3fc;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-family: monospace;
       font-size: 13px;
-      padding: 4px 0;
-      color: #333;
+      line-height: 1.8;
+      margin-top: 10px;
     }
-    .summary-list li::before { content: '✅ '; }
+
+    /* 名前の付け方 */
+    .name-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .name-table th {
+      background: #1a3a5c;
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 700;
+    }
+    .name-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #e0e6ed;
+      vertical-align: top;
+    }
+    .name-table tr:last-child td { border-bottom: none; }
+    .name-table tr:nth-child(even) td { background: #f8f9fc; }
+    .badge-good { background: #d1fae5; color: #065f46; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 7px; margin-right: 4px; }
+    .badge-bad  { background: #fee2e2; color: #991b1b; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 7px; margin-right: 4px; }
+
+    /* まとめ */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .summary-card {
+      background: #f4f6f9;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .summary-num {
+      font-size: 36px;
+      font-weight: 900;
+      color: #0d9488;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .summary-card p { font-size: 13px; color: #444; line-height: 1.7; margin: 0; }
+    .summary-card strong { color: #1a3a5c; }
   </style>
 </head>
 <body>
@@ -256,288 +141,163 @@
     <div class="main-content">
       <header class="topbar">
         <div class="topbar-title">🔤 変数を学ぼう</div>
-        <div class="topbar-user">
-          <span>👤</span>
-          <span id="topbarUser">user</span>
-        </div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">user</span></div>
       </header>
 
       <main class="page-content">
 
         <!-- ヒーロー -->
         <div class="learn-hero">
-          <div class="hero-badge">STEP 3 / PAD学習</div>
-          <h2>🔤 変数（へんすう）とは？</h2>
+          <h2>📦 変数（へんすう）って何？</h2>
           <p>
-            変数はPAD自動化の中でとても重要な概念です。<br>
-            「データを一時的に入れておく箱」のようなもので、これを使いこなすことで複雑な自動化が実現できます。
+            変数とは、<strong>データを入れておくための「箱」</strong>のようなものです。<br>
+            難しそうに聞こえますが、イメージをつかめばすぐわかります！
           </p>
         </div>
 
-        <!-- 変数とは何か -->
+        <!-- 1. 変数 = 箱 -->
         <div class="card">
-          <div class="card-header"><h3>変数とは何か？</h3></div>
+          <div class="card-header"><h3>① 変数 ＝ データを入れておく「箱」</h3></div>
           <div class="card-body">
-            <div class="box-concept">
-              <!-- 変数のイメージ図 -->
+            <p style="font-size:14px;color:#555;line-height:1.8;margin-bottom:16px;">
+              変数は、数字や文字などのデータを一時的に保存しておく場所です。<br>
+              箱に名前をつけて、中に好きなデータを入れておけます。
+            </p>
+
+            <div class="box-visual">
               <div style="text-align:center;">
-                <div style="font-size:12px; color:#888; margin-bottom:8px;">変数のイメージ</div>
-                <div style="display:flex; gap:12px; align-items:flex-end; justify-content:center;">
-                  <div class="var-box">
-                    <div class="var-box-label">変数名</div>
-                    <div class="var-box-name">CustomerName</div>
-                    <div style="font-size:11px; color:#888; margin-bottom:4px;">中身 ↓</div>
-                    <div class="var-box-value">株式会社山田</div>
+                <div style="font-size:12px;color:#888;margin-bottom:8px;">箱に名前をつけてデータを入れる</div>
+                <div style="display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;">
+                  <div style="text-align:center;">
+                    <div class="magic-box">
+                      <div class="box-label">担当者名</div>
+                      <div class="box-value" style="font-size:14px;">田中さん</div>
+                    </div>
                   </div>
-                  <div class="var-box" style="background:#fff8e1; border-color:#f6c343;">
-                    <div class="var-box-label" style="color:#b8860b;">変数名</div>
-                    <div class="var-box-name" style="background:#fef3c7; color:#92400e;">SalesAmount</div>
-                    <div style="font-size:11px; color:#888; margin-bottom:4px;">中身 ↓</div>
-                    <div class="var-box-value" style="color:#b45309;">850,000</div>
+                  <div style="text-align:center;">
+                    <div class="magic-box" style="background:#1d4ed8;">
+                      <div class="box-label">注文数</div>
+                      <div class="box-value">50</div>
+                    </div>
                   </div>
-                  <div class="var-box" style="background:#e8f8f2; border-color:#00b274;">
-                    <div class="var-box-label" style="color:#007a50;">変数名</div>
-                    <div class="var-box-name" style="background:#d1fae5; color:#065f46;">IsCompleted</div>
-                    <div style="font-size:11px; color:#888; margin-bottom:4px;">中身 ↓</div>
-                    <div class="var-box-value" style="color:#065f46;">True</div>
+                  <div style="text-align:center;">
+                    <div class="magic-box" style="background:#7c3aed;">
+                      <div class="box-label">完了フラグ</div>
+                      <div class="box-value" style="font-size:14px;">True</div>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div class="concept-text">
-                <h4>📦 変数 ＝ データを入れる「名前付きの箱」</h4>
-                <p>
-                  変数とは、<strong>値（データ）を一時的に保存しておく場所</strong>のことです。<br><br>
-                  たとえば、PADでWebサイトから取得した顧客名を後で使いたいとき、<br>
-                  <code>CustomerName</code> という名前の箱に「株式会社山田」と入れておけば、<br>
-                  フローのどこでも <code>%CustomerName%</code> と書くだけで使えます。<br><br>
-                  変数の中身は後から書き換えることもでき、
-                  <strong>ループ処理や条件分岐と組み合わせる</strong>ことで強力な自動化が実現できます。
-                </p>
-              </div>
+            <div class="point-block">
+              箱には<strong>数字・文字・Yes/No（True/False）</strong>など、いろんな種類のデータを入れられます。<br>
+              PADでは <code style="background:#f0f5ff;border:1px solid #c3d9ff;border-radius:3px;padding:1px 7px;font-family:monospace;color:#1d4ed8;">%変数名%</code> と書くことで、箱の中身をプログラムの中で使えます。
             </div>
           </div>
         </div>
 
-        <!-- 変数の種類 -->
+        <!-- 2. 変数を使う理由 -->
         <div class="card">
-          <div class="card-header"><h3>変数の種類（データ型）</h3></div>
+          <div class="card-header"><h3>② 変数を使うと、何がうれしいの？</h3></div>
           <div class="card-body">
-            <p style="font-size:13px; color:#666; margin-bottom:16px;">
-              PADでは変数に入れるデータの種類（データ型）があります。用途に合わせて使い分けましょう。
+            <p style="font-size:14px;color:#555;line-height:1.8;margin-bottom:16px;">
+              たとえば、毎月の売上レポートを自動で作るプログラムを考えてみましょう。<br>
+              「今月の担当者名」や「目標金額」が変わるたびにプログラムを書き直すのは大変です。<br>
+              でも<strong>変数を使えば、箱の中身を変えるだけでOK</strong>です！
             </p>
-            <div class="grid-3" style="gap:14px;">
-              <div class="type-card type-text">
-                <div class="type-card-header">
-                  <div class="type-icon">📝</div>
-                  <div>
-                    <div class="type-name">テキスト型 <span class="type-en">Text</span></div>
-                  </div>
-                </div>
-                <div class="type-desc">文字（ひらがな・漢字・英字・記号）を扱うときに使います。最もよく使う型です。</div>
-                <div class="type-example">
-                  <div class="ex-label">使用例</div>
-                  <div>"株式会社山田商事"</div>
-                  <div>"2025/04/15"</div>
-                  <div>"完了しました"</div>
+
+            <div class="compare-grid">
+              <div class="compare-box bad">
+                <h4>😰 変数を使わないと…</h4>
+                <p>担当者が変わるたびに、プログラムの中の「田中さん」という文字を<strong>全部探して書き直す</strong>必要があります。書き忘れるとバグの原因に！</p>
+                <div class="code-block">
+                  メール送信("田中さんへ")<br>
+                  レポート作成("田中さん担当")<br>
+                  通知送信("田中さん確認済")
                 </div>
               </div>
-              <div class="type-card type-number">
-                <div class="type-card-header">
-                  <div class="type-icon">🔢</div>
-                  <div>
-                    <div class="type-name">数値型 <span class="type-en">Numeric</span></div>
-                  </div>
-                </div>
-                <div class="type-desc">計算に使う数値を扱います。足し算・引き算などができます。</div>
-                <div class="type-example">
-                  <div class="ex-label">使用例</div>
-                  <div>850000  （売上金額）</div>
-                  <div>3.14  （小数も可）</div>
-                  <div>-100  （マイナスも可）</div>
+              <div class="compare-box good">
+                <h4>😊 変数を使うと！</h4>
+                <p>「担当者名」という箱に名前を入れておけば、<strong>箱の中身を1か所変えるだけ</strong>でプログラム全体に反映されます。</p>
+                <div class="code-block" style="color:#86efac;">
+                  担当者名 = "田中さん"<br>
+                  ↓<br>
+                  メール送信(%担当者名%へ)<br>
+                  レポート作成(%担当者名%担当)<br>
+                  通知送信(%担当者名%確認済)
                 </div>
               </div>
-              <div class="type-card type-bool">
-                <div class="type-card-header">
-                  <div class="type-icon">✅</div>
-                  <div>
-                    <div class="type-name">真偽値型 <span class="type-en">Boolean</span></div>
-                  </div>
-                </div>
-                <div class="type-desc">「True（はい）」か「False（いいえ）」の2択のみ。条件分岐で使います。</div>
-                <div class="type-example">
-                  <div class="ex-label">使用例</div>
-                  <div>True  （成功した）</div>
-                  <div>False  （失敗した）</div>
-                  <div>※ If文と組み合わせて使用</div>
-                </div>
-              </div>
-              <div class="type-card type-list">
-                <div class="type-card-header">
-                  <div class="type-icon">📋</div>
-                  <div>
-                    <div class="type-name">リスト型 <span class="type-en">List</span></div>
-                  </div>
-                </div>
-                <div class="type-desc">複数の値をまとめて1つの変数で管理できます。For Each文で1件ずつ処理するときに便利。</div>
-                <div class="type-example">
-                  <div class="ex-label">使用例</div>
-                  <div>["山田", "鈴木", "田中"]</div>
-                  <div>[100, 200, 300]</div>
-                  <div>フォルダ内のファイル一覧</div>
-                </div>
-              </div>
-              <div class="type-card type-datatable">
-                <div class="type-card-header">
-                  <div class="type-icon">🗂️</div>
-                  <div>
-                    <div class="type-name">データテーブル型 <span class="type-en">DataTable</span></div>
-                  </div>
-                </div>
-                <div class="type-desc">Excelのような「行×列」の表形式データ。ExcelやCSVを読み込むと自動でこの型になります。</div>
-                <div class="type-example">
-                  <div class="ex-label">使用例</div>
-                  <div>Excelシートの全データ</div>
-                  <div>CSVファイルの内容</div>
-                  <div>データベースの抽出結果</div>
-                </div>
-              </div>
-              <div class="type-card" style="background:#f8f9fc; border: 2px dashed #ccc;">
-                <div class="type-card-header">
-                  <div class="type-icon">💡</div>
-                  <div>
-                    <div class="type-name" style="color:#555;">PADでの変数の呼び出し方</div>
-                  </div>
-                </div>
-                <div class="type-desc" style="color:#555;">変数を使うときは変数名を <strong>%（パーセント）で囲む</strong> のがPADのルールです。</div>
-                <div class="type-example">
-                  <div class="ex-label">記述例</div>
-                  <div>%CustomerName%</div>
-                  <div>%SalesAmount%</div>
-                  <div>%FileList[0]%（リストの1番目）</div>
-                </div>
-              </div>
+            </div>
+
+            <div class="point-block">
+              変数を使うと、<strong>プログラムを1か所変えるだけで全体に反映</strong>されます。<br>
+              書き直しのミスも減り、メンテナンスもかんたんになります！
             </div>
           </div>
         </div>
 
-        <!-- PADでの変数の使い方 -->
+        <!-- 3. 名前のつけ方 -->
         <div class="card">
-          <div class="card-header"><h3>PADでの変数の使い方（操作イメージ）</h3></div>
+          <div class="card-header"><h3>③ 変数には「わかりやすい名前」をつけよう</h3></div>
           <div class="card-body">
-            <p style="font-size:13px; color:#666; margin-bottom:16px;">
-              実際にPADで「変数の設定」アクションを使う手順のイメージです。
+            <p style="font-size:14px;color:#555;line-height:1.8;margin-bottom:16px;">
+              箱に名前をつけるとき、「何が入っているかすぐわかる名前」にするのが大切です。<br>
+              後で見返したときに「この箱、何だっけ？」とならないようにしましょう。
             </p>
-            <ul class="step-list">
-              <li class="step-item">
-                <div class="step-num">1</div>
-                <div class="step-content">
-                  <h4>「変数の設定」アクションをフローに追加する</h4>
-                  <p>PADのアクションパネルから「変数」カテゴリを開き、<strong>「変数の設定」</strong>をダブルクリックまたはドラッグ&ドロップでフローに追加します。</p>
-                  <div class="step-visual">
-                    📌 アクションパネル → 「変数」カテゴリ → 「変数の設定」
-                  </div>
-                </div>
-              </li>
-              <li class="step-item">
-                <div class="step-num">2</div>
-                <div class="step-content">
-                  <h4>変数名と値を設定する</h4>
-                  <p>ダイアログが開いたら、変数名（自分で決めるラベル）と、入れたい値を入力します。</p>
-                  <div class="step-visual">
-                    変数名：<code>CustomerName</code><br>
-                    値：<code>株式会社山田商事</code><br>
-                    → OKをクリックで設定完了！
-                  </div>
-                </div>
-              </li>
-              <li class="step-item">
-                <div class="step-num">3</div>
-                <div class="step-content">
-                  <h4>変数を他のアクションで使う</h4>
-                  <p>設定した変数は <code>%変数名%</code> の形式でフロー内のどこでも使えます。</p>
-                  <div class="step-visual">
-                    例：メール送信アクションの「本文」に以下を入力<br>
-                    <code>%CustomerName% 様、ご注文ありがとうございます。</code><br>
-                    → 実行時に「株式会社山田商事 様、ご注文ありがとうございます。」と展開される
-                  </div>
-                </div>
-              </li>
-              <li class="step-item">
-                <div class="step-num">4</div>
-                <div class="step-content">
-                  <h4>変数の値を上書き（更新）する</h4>
-                  <p>「変数の設定」アクションをもう一度使えば、同じ変数名に新しい値を上書きできます。ループ処理中に値を更新していくことでカウンターや合計計算もできます。</p>
-                  <div class="step-visual">
-                    例：合計金額を加算する場合<br>
-                    変数名：<code>TotalAmount</code><br>
-                    値：<code>%TotalAmount% + %SalesAmount%</code><br>
-                    → ループのたびに合計に加算される
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
 
-        <!-- 命名規則 -->
-        <div class="card">
-          <div class="card-header"><h3>変数名の付け方（命名規則）</h3></div>
-          <div class="card-body">
-            <p style="font-size:13px; color:#666; margin-bottom:16px;">
-              わかりやすい変数名を付けることで、後からフローを見直したときも理解しやすくなります。
-            </p>
-            <div class="rule-grid">
-              <div class="rule-card good">
-                <h4>✅ 良い変数名の例</h4>
-                <div class="rule-item"><span class="rule-mark">✅</span><span>CustomerName</span></div>
-                <div class="rule-item"><span class="rule-mark">✅</span><span>SalesAmount</span></div>
-                <div class="rule-item"><span class="rule-mark">✅</span><span>IsLoginSuccess</span></div>
-                <div class="rule-item"><span class="rule-mark">✅</span><span>FileList</span></div>
-                <div class="rule-item"><span class="rule-mark">✅</span><span>RowCount</span></div>
-                <p class="rule-reason" style="margin-top:10px; font-size:11px; color:#065f46;">
-                  → 何のデータか見ただけでわかる！英語でも日本語でもOK
-                </p>
-              </div>
-              <div class="rule-card bad">
-                <h4>❌ 避けたい変数名の例</h4>
-                <div class="rule-item"><span class="rule-mark">❌</span><span>a</span></div>
-                <div class="rule-item"><span class="rule-mark">❌</span><span>temp</span></div>
-                <div class="rule-item"><span class="rule-mark">❌</span><span>data123</span></div>
-                <div class="rule-item"><span class="rule-mark">❌</span><span>新しい変数</span></div>
-                <div class="rule-item"><span class="rule-mark">❌</span><span>x</span></div>
-                <p class="rule-reason" style="margin-top:10px; font-size:11px; color:#991b1b;">
-                  → 後で見たときに何のデータかわからなくなる！
-                </p>
-              </div>
-            </div>
-            <div style="background:#f8f9fc; border-radius:8px; padding:14px 16px; margin-top:14px; font-size:13px; color:#555; line-height:1.7;">
-              <strong>💡 命名のコツ：</strong>
-              変数名は<strong>「何の」データかがわかる名前</strong>にするのがベスト。
-              複数の単語を組み合わせるときは単語の先頭を大文字にする「<strong>キャメルケース</strong>」
-              （例：<code style="background:#eef; padding:1px 5px; border-radius:3px;">customerName</code>）が一般的によく使われます。
+            <table class="name-table">
+              <thead>
+                <tr>
+                  <th>何を入れる箱？</th>
+                  <th>あいまいな名前（NG）</th>
+                  <th>わかりやすい名前（OK）</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>社員の名前</td>
+                  <td><span class="badge-bad">NG</span><code>a</code>　や　<code>data1</code></td>
+                  <td><span class="badge-good">OK</span><code>社員名</code>　や　<code>EmployeeName</code></td>
+                </tr>
+                <tr>
+                  <td>今月の売上合計</td>
+                  <td><span class="badge-bad">NG</span><code>x</code>　や　<code>num</code></td>
+                  <td><span class="badge-good">OK</span><code>今月売上合計</code>　や　<code>TotalSales</code></td>
+                </tr>
+                <tr>
+                  <td>処理が終わったかどうか</td>
+                  <td><span class="badge-bad">NG</span><code>flag</code>　や　<code>b</code></td>
+                  <td><span class="badge-good">OK</span><code>処理完了フラグ</code>　や　<code>IsDone</code></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="point-block" style="margin-top:16px;">
+              名前のルールはプロジェクトやチームによって違いますが、<br>
+              <strong>「中身が想像できる名前」</strong>にすることが、ミスを防ぐ一番のコツです！
             </div>
           </div>
         </div>
 
         <!-- まとめ -->
         <div class="card">
-          <div class="card-header"><h3>このページのまとめ</h3></div>
+          <div class="card-header"><h3>まとめ</h3></div>
           <div class="card-body">
-            <div class="summary-box">
-              <h4>🎓 変数について覚えておきたいこと</h4>
-              <ul class="summary-list">
-                <li>変数は「データを入れる名前付きの箱」</li>
-                <li>PADでは <code style="background:#e8f0fe; border-radius:3px; padding:1px 6px; font-family:monospace;">%変数名%</code> で変数を呼び出す</li>
-                <li>テキスト型・数値型・真偽値型・リスト型・データテーブル型の5種類が主に使われる</li>
-                <li>「変数の設定」アクションで変数を作成・更新できる</li>
-                <li>変数名は「何のデータか」がわかる名前を付けよう</li>
-                <li>ループ処理や条件分岐と組み合わせることで複雑な自動化が実現できる</li>
-              </ul>
+            <div class="summary-grid">
+              <div class="summary-card">
+                <div class="summary-num">1</div>
+                <p>変数はデータを入れておく<br><strong>「箱」</strong>のようなもの</p>
+              </div>
+              <div class="summary-card">
+                <div class="summary-num">2</div>
+                <p>変数を使うと<br><strong>1か所変えるだけ</strong>で<br>全体に反映できる</p>
+              </div>
+              <div class="summary-card">
+                <div class="summary-num">3</div>
+                <p>箱には<br><strong>中身がわかる名前</strong>を<br>つけよう</p>
+              </div>
             </div>
-            <p style="font-size:13px; color:#666; margin-top:16px; text-align:center;">
-              次のステップは「条件分岐（If文）」です！変数と組み合わせてより高度な自動化に挑戦しましょう 🚀
-            </p>
           </div>
         </div>
 
@@ -550,8 +310,7 @@
   <script>
     checkLogin();
     document.getElementById('sidebarContainer').innerHTML = renderSidebar('pad-variables');
-    const u = sessionStorage.getItem('userName') || 'user';
-    document.getElementById('topbarUser').textContent = u;
+    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
   </script>
 </body>
 </html>
