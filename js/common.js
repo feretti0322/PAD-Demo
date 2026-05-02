@@ -11,12 +11,6 @@ function checkLogin() {
 
 // サイドバー共通HTML生成
 function renderSidebar(activePage) {
-  const learnPages = [
-    { id: 'pad-overview', icon: '📖', label: 'PADとは', href: 'pad-overview.html' },
-    { id: 'pad-variables', icon: '🔤', label: '変数を学ぼう', href: 'pad-variables.html' },
-    { id: 'pad-variables-eq', icon: '🔢', label: '変数を学ぼう（方程式ver）', href: 'pad-variables-eq.html' },
-  ];
-
   const demoPages = [
     { id: 'dashboard', icon: '📊', label: 'ダッシュボード', href: 'dashboard.html' },
     { id: 'customer', icon: '🏢', label: '得意先一覧', href: 'customer.html' },
@@ -26,12 +20,49 @@ function renderSidebar(activePage) {
     { id: 'campaign', icon: '📣', label: 'キャンペーン管理', href: 'campaign.html' },
   ];
 
+  const learnSections = [
+    {
+      name: '事前知識編',
+      items: [
+        { id: 'pad-overview', icon: '📖', label: 'PADとは', href: 'pad-overview.html' },
+        { id: 'pad-variables', icon: '🔤', label: '変数を学ぼう', href: 'pad-variables.html' },
+        { id: 'pad-variables-eq', icon: '🔢', label: '変数を学ぼう（方程式ver）', href: 'pad-variables-eq.html' },
+      ]
+    },
+    {
+      name: 'セットアップ編',
+      items: [
+        { id: 'pad-setup-install', icon: '⚙️', label: 'インストールと事前準備', href: 'pad-setup-install.html' },
+      ]
+    }
+  ];
+
   const makeNavItems = pages => pages.map(p => `
     <a href="${p.href}" class="nav-item ${activePage === p.id ? 'active' : ''}">
       <span class="nav-icon">${p.icon}</span>
       ${p.label}
     </a>
   `).join('');
+
+  const makeCollapsibleSection = (section) => {
+    const isOpen = section.items.some(item => activePage === item.id);
+    return `
+      <div class="nav-collapsible">
+        <button class="nav-collapse-btn ${isOpen ? 'open' : ''}">
+          <span class="collapse-icon">▶</span>
+          ${section.name}
+        </button>
+        <div class="nav-collapse-content ${isOpen ? 'open' : ''}">
+          ${section.items.map(p => `
+            <a href="${p.href}" class="nav-item nav-sub-item ${activePage === p.id ? 'active' : ''}">
+              <span class="nav-icon">${p.icon}</span>
+              ${p.label}
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  };
 
   return `
     <aside class="sidebar">
@@ -41,10 +72,10 @@ function renderSidebar(activePage) {
         <div class="brand-sub">Power Automate for Desktop</div>
       </div>
       <nav class="sidebar-nav">
-        <div class="nav-section">学習</div>
-        ${makeNavItems(learnPages)}
-        <div class="nav-section" style="margin-top:8px;">業務デモ</div>
+        <div class="nav-section">業務デモ</div>
         ${makeNavItems(demoPages)}
+        <div class="nav-section" style="margin-top:8px;">学習</div>
+        ${learnSections.map(makeCollapsibleSection).join('')}
       </nav>
       <div class="sidebar-footer">
         ログイン中: <strong>${sessionStorage.getItem('userName') || 'user'}</strong>
@@ -112,3 +143,13 @@ function formatMoney(n) {
 function formatDate(d) {
   return d;
 }
+
+// コラプシブルメニュー（イベントデリゲーション方式）
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.nav-collapse-btn');
+  if (!btn) return;
+  e.preventDefault();
+  const content = btn.nextElementSibling;
+  btn.classList.toggle('open');
+  content.classList.toggle('open');
+});

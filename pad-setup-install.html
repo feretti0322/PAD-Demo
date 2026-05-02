@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>インストールと事前準備 | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .setup-hero {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0d7377 100%);
+      border-radius: 12px;
+      padding: 36px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .setup-hero h2 { font-size: 24px; font-weight: 700; margin: 0 0 12px; }
+    .setup-hero p { font-size: 15px; line-height: 1.9; margin: 0; opacity: 0.95; }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .step-num {
+      background: #1a3a5c;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a3a5c;
+    }
+
+    .step-body {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.9;
+    }
+    .step-body p { margin-bottom: 12px; }
+    .step-body p:last-child { margin-bottom: 0; }
+
+    .instruction-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+      counter-reset: inst;
+    }
+    .instruction-list li {
+      counter-increment: inst;
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.7;
+    }
+    .instruction-list li:last-child { border-bottom: none; }
+    .instruction-list li::before {
+      content: counter(inst);
+      background: #2c7be5;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .point-block {
+      background: #f4f6f9;
+      border-left: 4px solid #2c7be5;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.9;
+      color: #333;
+      margin-top: 16px;
+    }
+    .point-block strong { color: #1a3a5c; }
+
+    .warning-block {
+      background: #fff8f0;
+      border-left: 4px solid #f6a623;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.9;
+      color: #333;
+      margin-top: 16px;
+    }
+    .warning-block strong { color: #92400e; }
+
+    .setting-path {
+      background: #1e293b;
+      color: #7dd3fc;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-family: monospace;
+      font-size: 13px;
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .setting-path .arrow { color: #64748b; }
+
+    .toggle-visual {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f8f9fc;
+      border: 1px solid #e0e6ed;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 12px 0;
+      font-size: 14px;
+      color: #333;
+    }
+    .toggle-off {
+      width: 44px;
+      height: 24px;
+      background: #d1d5db;
+      border-radius: 12px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .toggle-off::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">⚙️ インストールと事前準備</div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">user</span></div>
+      </header>
+
+      <main class="page-content">
+
+        <!-- ヒーロー -->
+        <div class="setup-hero">
+          <h2>⚙️ インストールと事前準備</h2>
+          <p>
+            Power Automate for Desktop（PAD）を使い始める前に、<br>
+            インストールと必要な設定を済ませておきましょう。<strong>Windows PC</strong> での手順を説明します。
+          </p>
+        </div>
+
+        <!-- STEP 1: PADインストール -->
+        <div class="card">
+          <div class="card-header">
+            <div class="step-header" style="margin:0;">
+              <div class="step-num">1</div>
+              <div class="step-title">Power Automate for Desktop をインストールする</div>
+            </div>
+          </div>
+          <div class="card-body step-body">
+            <p>
+              <strong>Windows 11 には Power Automate for Desktop が標準搭載されています。</strong><br>
+              まずはスタートメニューから起動して、アプリケーションが存在するかを確認しましょう。
+            </p>
+
+            <ol class="instruction-list">
+              <li>スタートメニュー（左下の Windows ロゴ）をクリックする</li>
+              <li>検索バーに「<strong>Power Automate</strong>」と入力して検索する</li>
+              <li>「<strong>Power Automate</strong>」（Microsoft Corporation 製）が表示されたら、それをクリックして起動する</li>
+              <li>Microsoft アカウント（職場・学校アカウント）でサインインする</li>
+            </ol>
+
+            <div class="point-block">
+              💡 <strong>アプリが見つからない場合</strong><br>
+              検索しても「Power Automate」が見つからない場合は、以下の手順でインストールしてください：<br>
+              <strong>Microsoft Store</strong> を開き、検索バーで「Power Automate」と入力し、<br>
+              「<strong>Power Automate</strong>」（Microsoft Corporation 製）の「<strong>インストール</strong>」をクリックしてください。
+            </div>
+
+            <div class="point-block">
+              💡 <strong>Microsoft アカウントについて</strong><br>
+              会社のメールアドレス（例：name@company.com）でサインインします。<br>
+              個人の Microsoft アカウントではなく、<strong>職場・学校アカウント</strong>を使用してください。<br><br>
+              <strong>まだ Microsoft アカウントを持っていない場合：</strong><br>
+              スタートメニュー → 設定 → アカウント から、<strong>職場または学校用アカウントの追加</strong>をクリックして新規作成できます。
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Edge拡張機能 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="step-header" style="margin:0;">
+              <div class="step-num">2</div>
+              <div class="step-title">Microsoft Edge の拡張機能をインストールする</div>
+            </div>
+          </div>
+          <div class="card-body step-body">
+            <p>
+              PAD が Edge ブラウザを自動操作するために、<strong>専用の拡張機能</strong>をインストールする必要があります。<br>
+              この設定をしないと、Web ページの操作が正しく動作しません。
+            </p>
+
+            <p>以下のリンクから直接インストールするのが最も簡単です：</p>
+
+            <div style="background: #f0f5ff; border: 2px solid #2c7be5; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center;">
+              <a href="https://microsoftedge.microsoft.com/addons/detail/microsoft-power-automate/kagpabjoboikccfdghpdlaaopmgpgfdc" target="_blank" style="display: inline-block; background: #2c7be5; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px;">
+                🔗 Microsoft Power Automate をインストール
+              </a>
+            </div>
+
+            <p>上のリンクをクリックすると Microsoft Edge ストアが開き、「<strong>取得</strong>」ボタンで簡単にインストールできます。</p>
+
+            <p style="font-size: 13px; color: #666; margin-top: 12px;">または、手動でインストールすることもできます：</p>
+
+            <ol class="instruction-list" style="font-size: 13px;">
+              <li>Microsoft Edge を開く</li>
+              <li>右上の「<strong>…</strong>（設定など）」→「<strong>拡張機能</strong>」を選択</li>
+              <li>「<strong>Microsoft Edge アドオンを開く</strong>」をクリック</li>
+              <li>「<strong>Microsoft Power Automate</strong>」を検索してインストール</li>
+            </ol>
+
+            <div class="point-block">
+              💡 <strong>インストール確認方法</strong><br>
+              Edge の右上にパズルピースのアイコンが表示され、一覧に「Microsoft Power Automate」が追加されていればOKです。
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: Edgeのバックグラウンド設定 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="step-header" style="margin:0;">
+              <div class="step-num">3</div>
+              <div class="step-title">Edge のバックグラウンド実行をオフにする</div>
+            </div>
+          </div>
+          <div class="card-body step-body">
+            <p>
+              Edge を閉じた後もバックグラウンドで動き続ける設定があります。<br>
+              これが<strong>オン</strong>のままだと、PAD がフローの中で Edge を操作する際に<strong>予期しないエラーが発生することがあります</strong>。<br>
+              必ずオフに設定しておきましょう。
+            </p>
+
+            <p>以下の手順で設定を変更します：</p>
+
+            <ol class="instruction-list">
+              <li>Microsoft Edge を開く</li>
+              <li>右上の「<strong>…（設定など）</strong>」をクリックし、「<strong>設定</strong>」を選択する</li>
+              <li>左側メニューの「<strong>システムとパフォーマンス</strong>」をクリックする</li>
+              <li>「<strong>システム</strong>」をクリックする</li>
+              <li>「<strong>Microsoft Edge が閉じられた後もバックグラウンドの拡張機能およびアプリの実行を続行する</strong>」を探す</li>
+              <li>トグルスイッチを <strong>オフ</strong>（グレー）にする</li>
+            </ol>
+
+            <div class="setting-path">
+              <span>⚙️ 設定</span>
+              <span class="arrow">›</span>
+              <span>システムとパフォーマンス</span>
+              <span class="arrow">›</span>
+              <span>システム</span>
+              <span class="arrow">›</span>
+              <span>バックグラウンド実行を続行する → <strong style="color:#f87171;">オフ</strong></span>
+            </div>
+
+            <div class="toggle-visual">
+              <div class="toggle-off"></div>
+              <span>オフ（グレー）の状態にしてください</span>
+            </div>
+
+            <div class="warning-block">
+              ⚠️ <strong>なぜオフにするの？</strong><br>
+              バックグラウンド実行がオンの場合、Edge の見えないプロセスが残ったままになります。<br>
+              PAD がフローの中で「Edge を新しく開く」操作をした際に、古いプロセスと競合してエラーになることがあります。
+            </div>
+          </div>
+        </div>
+
+        <!-- 完了メッセージ -->
+        <div class="card">
+          <div class="card-body" style="text-align:center; padding: 32px 20px;">
+            <div style="font-size: 40px; margin-bottom: 12px;">🎉</div>
+            <div style="font-size: 18px; font-weight: 700; color: #1a3a5c; margin-bottom: 8px;">準備完了！</div>
+            <p style="font-size: 14px; color: #555; line-height: 1.8; margin: 0;">
+              3つの設定が完了したら、PAD を使う準備は万端です。<br>
+              さっそくフローを作ってみましょう！
+            </p>
+          </div>
+        </div>
+
+      </main>
+      <footer class="app-footer">© 2025 PAD練習サイト</footer>
+    </div>
+  </div>
+
+  <script src="js/common.js?v=2"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('pad-setup-install');
+    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
+  </script>
+</body>
+</html>

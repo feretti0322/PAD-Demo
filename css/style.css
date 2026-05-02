@@ -331,6 +331,73 @@ textarea.form-control {
   text-align: center;
 }
 
+/* コラプシブルメニュー */
+.nav-collapsible {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-collapse-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: rgba(255,255,255,0.75);
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.nav-collapse-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.nav-collapse-btn .collapse-icon {
+  display: inline-block;
+  font-size: 10px;
+  transition: transform 0.2s;
+  width: 12px;
+  text-align: center;
+}
+
+.nav-collapse-btn.open .collapse-icon {
+  transform: rotate(90deg);
+}
+
+.nav-collapse-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.nav-collapse-content.open {
+  max-height: 500px;
+}
+
+.nav-sub-item {
+  padding: 8px 20px 8px 40px !important;
+  font-size: 12px !important;
+  color: rgba(255,255,255,0.6) !important;
+}
+
+.nav-sub-item:hover {
+  color: #fff !important;
+}
+
+.nav-sub-item.active {
+  background: rgba(44, 123, 229, 0.3);
+  color: #fff !important;
+  border-left: 3px solid #2c7be5;
+  padding-left: 37px !important;
+}
+
 .sidebar-footer {
   padding: 16px 20px;
   border-top: 1px solid rgba(255,255,255,0.1);
