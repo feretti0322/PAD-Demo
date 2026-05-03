@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebDriverと標準起動の違い | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .learn-hero {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0d7377 100%);
+      border-radius: 12px;
+      padding: 36px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .learn-hero h2 { font-size: 24px; font-weight: 700; margin: 0 0 12px; }
+    .learn-hero p { font-size: 15px; line-height: 1.9; margin: 0; opacity: 0.95; }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    .compare-table th, .compare-table td {
+      border: 1px solid #e0e6ed;
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.7;
+    }
+    .compare-table th {
+      background: #1a3a5c;
+      color: #fff;
+      font-weight: 700;
+    }
+    .compare-table td.col-label {
+      background: #f4f6f9;
+      font-weight: 700;
+      color: #1a3a5c;
+      width: 22%;
+    }
+    .compare-table .recommend {
+      background: #f0fdf4;
+      color: #065f46;
+      font-weight: 700;
+    }
+    .compare-table .warn {
+      background: #fff8f0;
+      color: #92400e;
+    }
+
+    .point-block {
+      background: #f4f6f9;
+      border-left: 4px solid #2c7be5;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.9;
+      color: #333;
+      margin-top: 16px;
+    }
+    .point-block strong { color: #1a3a5c; }
+
+    .warning-block {
+      background: #fff8f0;
+      border-left: 4px solid #f6a623;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.9;
+      color: #333;
+      margin-top: 16px;
+    }
+    .warning-block strong { color: #b45309; }
+
+    .instruction-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+      counter-reset: inst;
+    }
+    .instruction-list li {
+      counter-increment: inst;
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.7;
+    }
+    .instruction-list li:last-child { border-bottom: none; }
+    .instruction-list li::before {
+      content: counter(inst);
+      background: #2c7be5;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .code-block {
+      background: #1e293b;
+      color: #7dd3fc;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+
+    .check-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+    }
+    .check-list li {
+      padding: 10px 14px;
+      background: #fff;
+      border: 1px solid #e0e6ed;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .check-list li::before {
+      content: '☐';
+      font-size: 18px;
+      color: #2c7be5;
+    }
+
+    .summary-card {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      border-left: 4px solid #00b274;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-top: 20px;
+    }
+    .summary-card h4 { color: #065f46; margin: 0 0 10px; font-size: 15px; }
+    .summary-card ol { margin: 0; padding-left: 22px; font-size: 14px; line-height: 2; color: #333; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">🚗 WebDriverと標準起動の違いを学ぼう</div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">user</span></div>
+      </header>
+      <main class="page-content">
+
+        <section class="learn-hero">
+          <h2>🚗 ChromeDriver vs 標準起動 ― どちらを使うべき？</h2>
+          <p>PADにはChromeを起動する方法が2種類あります。本研修では <strong>Chrome WebDriver起動</strong> を必修として使います。その理由をここで理解しましょう。</p>
+        </section>
+
+        <div class="card">
+          <div class="card-header"><h3>① 2種類の起動方式の比較</h3></div>
+          <div class="card-body">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>項目</th>
+                  <th>標準のChrome起動（CDP方式）</th>
+                  <th>Chrome WebDriver起動</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="col-label">PADのアクション名</td>
+                  <td>新しい Chrome を起動する</td>
+                  <td>Chrome WebDriverを使用してChromeを起動する</td>
+                </tr>
+                <tr>
+                  <td class="col-label">仕組み</td>
+                  <td>すでに起動しているChromeに「割り込む」</td>
+                  <td>PADがChromeを子プロセスとして<strong>完全制御</strong></td>
+                </tr>
+                <tr>
+                  <td class="col-label">セットアップ</td>
+                  <td>不要</td>
+                  <td>ChromeDriverのインストールが必要</td>
+                </tr>
+                <tr>
+                  <td class="col-label">業務サイトでの安定性</td>
+                  <td class="warn">⚠️ サイトによって要素が取れないことがある</td>
+                  <td class="recommend">✅ 業務サイトでも安定して動作しやすい</td>
+                </tr>
+                <tr>
+                  <td class="col-label">本研修での推奨</td>
+                  <td>△ 学習初期のみ</td>
+                  <td class="recommend">◎ 必須（第4回以降）</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="point-block">
+              <strong>たとえるなら：</strong> 標準起動は「すでに走っている車に後から乗り込む」方式。WebDriver起動は「PADがドライバーとして最初から運転席に座る」方式。後者のほうが、業務サイトという複雑な道では安定して走れます。
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>② ChromeDriver のインストール手順</h3></div>
+          <div class="card-body">
+            <ol class="instruction-list">
+              <li>
+                <div>
+                  <strong>Chromeのバージョンを確認する</strong><br>
+                  アドレスバーに <code>chrome://version</code> を入力 → 「Google Chrome」の行を確認 → メジャーバージョン（例：<code>124</code>）をメモする。
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>ChromeDriver をダウンロードする</strong><br>
+                  Chrome 115以降は <code>https://googlechromelabs.github.io/chrome-for-testing/</code> から、自分のバージョンに対応する <code>chromedriver</code> の <code>win64</code> をダウンロード。
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>展開して所定のフォルダに配置する</strong><br>
+                  推奨パス：<code>C:\PAD\drivers\chromedriver.exe</code>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>PADで設定する</strong><br>
+                  「Chrome WebDriverを使用してChromeを起動する」アクションを追加し、「ChromeDriverのパス」に <code>C:\PAD\drivers\chromedriver.exe</code> を指定。
+                </div>
+              </li>
+            </ol>
+            <div class="code-block">起動アクションの設定例：
+  WebDriver: Chrome
+  ChromeDriver パス: C:\PAD\drivers\chromedriver.exe
+  初期URL: https://example.com/login</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>③ バージョン不一致に注意</h3></div>
+          <div class="card-body">
+            <div class="warning-block">
+              <strong>⚠️ 注意：</strong> Chromeは自動更新されます。ChromeDriverのバージョンが古くなると、ある日突然フローが動かなくなります。<br>
+              月に1回、Chromeのバージョンを確認してChromeDriverを更新する運用を推奨します。<br>
+              典型的な症状：「ChromeDriverとChromeのバージョンが一致しません」というエラーメッセージ。
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>④ 設定確認チェックリスト</h3></div>
+          <div class="card-body">
+            <ul class="check-list">
+              <li><code>C:\PAD\drivers\chromedriver.exe</code> が存在する</li>
+              <li>PADアクションで「ChromeDriverのパス」が正しく設定されている</li>
+              <li>ChromeのバージョンとChromeDriverのメジャーバージョンが一致している</li>
+              <li>Chromeがデフォルトのプロファイルで起動できる</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <h4>📝 3行まとめ</h4>
+          <ol>
+            <li>PADのChrome起動には <strong>標準起動</strong> と <strong>WebDriver起動</strong> の2種類があり、業務サイト対応では後者が本命。</li>
+            <li>ChromeDriver を <code>C:\PAD\drivers\</code> に配置し、PADアクションでパスを指定すれば準備完了。</li>
+            <li>Chromeの自動更新でバージョン乖離が起きるため、月次で点検する運用が必要。</li>
+          </ol>
+        </div>
+
+      </main>
+      <footer class="app-footer">© 2025 PAD練習サイト</footer>
+    </div>
+  </div>
+  <script src="js/common.js?v=2"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('pad-webdriver');
+    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
+  </script>
+</body>
+</html>

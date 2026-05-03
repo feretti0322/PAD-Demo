@@ -31,8 +31,26 @@ function renderSidebar(activePage) {
       name: 'セットアップ編',
       items: [
         { id: 'pad-setup-install', icon: '⚙️', label: 'インストールと事前準備', href: 'pad-setup-install.html' },
+        { id: 'pad-webdriver', icon: '🚗', label: 'WebDriverと標準起動の違い', href: 'pad-webdriver.html' },
       ]
-    }
+    },
+    {
+      name: 'ブラウザ自動化編',
+      items: [
+        { id: 'pad-scraping', icon: '🕷️', label: 'スクレイピングを学ぼう', href: 'pad-scraping.html' },
+        { id: 'pad-datatable', icon: '📊', label: 'データテーブルを学ぼう', href: 'pad-datatable.html' },
+        { id: 'pad-url-navigate', icon: '🔗', label: 'URL直接ナビゲート', href: 'pad-url-navigate.html' },
+      ]
+    },
+    {
+      name: 'フロー設計編',
+      items: [
+        { id: 'pad-loop', icon: '🔁', label: 'ループを学ぼう', href: 'pad-loop.html' },
+        { id: 'pad-condition', icon: '🔀', label: '条件分岐を学ぼう', href: 'pad-condition.html' },
+        { id: 'pad-error', icon: '🛡️', label: 'エラーハンドリングを学ぼう', href: 'pad-error.html' },
+        { id: 'pad-subroutine', icon: '📦', label: 'サブルーティンを学ぼう', href: 'pad-subroutine.html' },
+      ]
+    },
   ];
 
   const makeNavItems = pages => pages.map(p => `

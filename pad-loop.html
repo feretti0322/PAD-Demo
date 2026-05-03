@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ループを学ぼう | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .learn-hero {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0d7377 100%);
+      border-radius: 12px; padding: 36px; color: #fff; margin-bottom: 24px;
+    }
+    .learn-hero h2 { font-size: 24px; font-weight: 700; margin: 0 0 12px; }
+    .learn-hero p { font-size: 15px; line-height: 1.9; margin: 0; opacity: 0.95; }
+
+    .compare-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+    .compare-table th, .compare-table td { border: 1px solid #e0e6ed; padding: 10px 14px; text-align: left; line-height: 1.7; }
+    .compare-table th { background: #1a3a5c; color: #fff; }
+
+    .point-block { background: #f4f6f9; border-left: 4px solid #2c7be5; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 14px; line-height: 1.9; color: #333; margin-top: 16px; }
+    .point-block strong { color: #1a3a5c; }
+
+    .code-block { background: #1e293b; color: #7dd3fc; border-radius: 6px; padding: 10px 14px; font-family: monospace; font-size: 13px; line-height: 1.8; margin-top: 10px; white-space: pre-wrap; }
+
+    .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; }
+    .demo-panel { background: #f9fafb; border: 2px solid #e0e6ed; border-radius: 8px; padding: 16px; min-height: 280px; }
+    .demo-label { font-size: 14px; font-weight: 700; color: #1a3a5c; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #e0e6ed; }
+    .demo-item { background: #fff; border: 1px solid #e0e6ed; border-radius: 4px; padding: 8px 12px; margin: 6px 0; font-size: 13px; opacity: 0; transform: translateY(8px); transition: opacity .25s, transform .25s; }
+    .demo-item.show { opacity: 1; transform: translateY(0); }
+    .demo-controls { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .demo-time { font-size: 12px; color: #888; margin-top: 8px; }
+
+    .summary-card { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-left: 4px solid #00b274; border-radius: 8px; padding: 18px 22px; margin-top: 20px; }
+    .summary-card h4 { color: #065f46; margin: 0 0 10px; font-size: 15px; }
+    .summary-card ol { margin: 0; padding-left: 22px; font-size: 14px; line-height: 2; color: #333; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">🔁 ループを学ぼう</div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">user</span></div>
+      </header>
+      <main class="page-content">
+
+        <section class="learn-hero">
+          <h2>🔁 ループとは？ ― 「全員分やっといて」と一言で済ませる魔法</h2>
+          <p>派遣スタッフ700名分のプロフィールシートを1人ずつ手作業で作るのと、PADに「全員分やっといて」と一言指示して終わらせるのとでは、業務効率が桁違いに変わります。これがループの威力です。</p>
+        </section>
+
+        <div class="card">
+          <div class="card-header"><h3>① FOR と FOR EACH の違い</h3></div>
+          <div class="card-body">
+            <table class="compare-table">
+              <thead><tr><th>アクション</th><th>使いどころ</th><th>例</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><strong>Loop（FOR）</strong></td>
+                  <td>回数を指定して繰り返す</td>
+                  <td>「メッセージを10回表示する」</td>
+                </tr>
+                <tr>
+                  <td><strong>For each（FOR EACH）</strong></td>
+                  <td>リストやデータテーブルの中身を1件ずつ処理する</td>
+                  <td>「スタッフ一覧の全員に対してプロフィールシートを作る」</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="point-block">
+              <strong>覚え方：</strong> 数えるのが「回数」なら <strong>Loop</strong>、数えるのが「件数」なら <strong>For each</strong>。
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>② インタラクティブデモ：人間モード vs PADモード</h3></div>
+          <div class="card-body">
+            <p style="font-size:14px; color:#444; line-height:1.8;">同じ5人分のスタッフ処理を、人間とPADでどれだけ差が出るか体感してみましょう。</p>
+            <div class="demo-controls">
+              <button class="btn btn-secondary" id="btnHuman" aria-label="人間モード開始">👤 人間モード開始</button>
+              <button class="btn btn-primary" id="btnPad" aria-label="PADモード開始">🤖 PADモード開始</button>
+              <button class="btn btn-outline" id="btnReset" aria-label="リセット">🔄 リセット</button>
+            </div>
+            <div class="demo-grid">
+              <div class="demo-panel">
+                <div class="demo-label">👤 人間モード（1人ずつ手作業）</div>
+                <div id="humanList"></div>
+                <div class="demo-time" id="humanTime"></div>
+              </div>
+              <div class="demo-panel">
+                <div class="demo-label">🤖 PADモード（FOR EACH一括）</div>
+                <div id="padList"></div>
+                <div class="demo-time" id="padTime"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>③ ループとデータテーブルの組み合わせ</h3></div>
+          <div class="card-body">
+            <p style="font-size:14px; color:#444; line-height:1.8;">スクレイピングで取得したスタッフ一覧（DataTable）を1行ずつ処理する典型パターンです。</p>
+            <div class="code-block">FOR EACH CurrentItem IN StaffList
+    氏名 = CurrentItem['氏名']
+    部署 = CurrentItem['部署']
+    # ↑ 列名はスクレイピング時のヘッダー名と一致させる
+    CALL プロフィールシート出力(氏名, 部署)
+END</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>④ ループ内インデックス（LoopIndex）の利用</h3></div>
+          <div class="card-body">
+            <p style="font-size:14px; color:#444; line-height:1.8;">何件目を処理しているかを <code>LoopIndex</code> で取得できます。進捗ログに便利です。</p>
+            <div class="code-block">FOR EACH staff IN StaffList
+    Display message: "%LoopIndex + 1% / %StaffList.RowsCount% 件目: %staff['氏名']%"
+END</div>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <h4>📝 3行まとめ</h4>
+          <ol>
+            <li>ループは「同じ処理をたくさん繰り返す」ためのアクション。回数指定なら <strong>Loop</strong>、件数指定なら <strong>For each</strong>。</li>
+            <li>データテーブル × FOR EACH で「スタッフ全員分」のような実務処理が一気に書ける。</li>
+            <li>進捗の可視化には <code>LoopIndex</code> を活用すると、運用が安定する。</li>
+          </ol>
+        </div>
+
+      </main>
+      <footer class="app-footer">© 2025 PAD練習サイト</footer>
+    </div>
+  </div>
+  <script src="js/common.js?v=2"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('pad-loop');
+    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
+
+    const targets = STAFF_DATA.slice(0, 5);
+    const btnHuman = document.getElementById('btnHuman');
+    const btnPad = document.getElementById('btnPad');
+    const btnReset = document.getElementById('btnReset');
+    const humanList = document.getElementById('humanList');
+    const padList = document.getElementById('padList');
+    const humanTime = document.getElementById('humanTime');
+    const padTime = document.getElementById('padTime');
+
+    function makeItem(s) {
+      const div = document.createElement('div');
+      div.className = 'demo-item';
+      div.textContent = `${s.id}  ${s.name}（${s.dept}）処理完了`;
+      requestAnimationFrame(() => div.classList.add('show'));
+      return div;
+    }
+
+    btnHuman.onclick = async () => {
+      humanList.innerHTML = ''; humanTime.textContent = '';
+      btnHuman.disabled = true;
+      const start = performance.now();
+      for (const s of targets) {
+        humanList.appendChild(makeItem(s));
+        await new Promise(r => setTimeout(r, 800));
+      }
+      humanTime.textContent = `所要時間: ${((performance.now() - start) / 1000).toFixed(2)} 秒`;
+      btnHuman.disabled = false;
+    };
+
+    btnPad.onclick = async () => {
+      padList.innerHTML = ''; padTime.textContent = '';
+      btnPad.disabled = true;
+      const start = performance.now();
+      targets.forEach(s => padList.appendChild(makeItem(s)));
+      await new Promise(r => setTimeout(r, 200));
+      padTime.textContent = `所要時間: ${((performance.now() - start) / 1000).toFixed(2)} 秒`;
+      btnPad.disabled = false;
+    };
+
+    btnReset.onclick = () => {
+      humanList.innerHTML = ''; padList.innerHTML = '';
+      humanTime.textContent = ''; padTime.textContent = '';
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL直接ナビゲートを学ぼう | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .learn-hero { background: linear-gradient(135deg, #1a3a5c 0%, #0d7377 100%); border-radius: 12px; padding: 36px; color: #fff; margin-bottom: 24px; }
+    .learn-hero h2 { font-size: 24px; font-weight: 700; margin: 0 0 12px; }
+    .learn-hero p { font-size: 15px; line-height: 1.9; margin: 0; opacity: 0.95; }
+
+    .point-block { background: #f4f6f9; border-left: 4px solid #2c7be5; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 14px; line-height: 1.9; color: #333; margin-top: 16px; }
+    .point-block strong { color: #1a3a5c; }
+    .danger-block { background: #fef2f2; border-left: 4px solid #e63757; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 14px; line-height: 1.9; color: #333; margin-top: 16px; }
+    .danger-block strong { color: #991b1b; }
+    .success-block { background: #f0fdf4; border-left: 4px solid #00b274; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 14px; line-height: 1.9; color: #333; margin-top: 16px; }
+    .success-block strong { color: #065f46; }
+
+    .code-block { background: #1e293b; color: #7dd3fc; border-radius: 6px; padding: 10px 14px; font-family: monospace; font-size: 13px; line-height: 1.8; margin-top: 10px; white-space: pre-wrap; word-break: break-all; }
+
+    .sim-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 14px; align-items: end; }
+    .sim-row label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; }
+    .sim-row select { width: 100%; padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 6px; font-size: 14px; background: #fff; }
+    .url-output { background: #1e293b; color: #facc15; padding: 14px 16px; border-radius: 6px; font-family: monospace; font-size: 14px; word-break: break-all; margin-top: 14px; }
+
+    .pattern-list { list-style: none; padding: 0; margin: 12px 0; }
+    .pattern-list li { background: #f9fafb; border: 1px solid #e0e6ed; border-radius: 6px; padding: 12px 16px; margin-bottom: 8px; font-size: 14px; line-height: 1.7; }
+    .pattern-list code { background: #1e293b; color: #7dd3fc; padding: 2px 8px; border-radius: 4px; font-size: 13px; margin-right: 8px; }
+
+    .summary-card { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-left: 4px solid #00b274; border-radius: 8px; padding: 18px 22px; margin-top: 20px; }
+    .summary-card h4 { color: #065f46; margin: 0 0 10px; font-size: 15px; }
+    .summary-card ol { margin: 0; padding-left: 22px; font-size: 14px; line-height: 2; color: #333; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">🔗 URL直接ナビゲートを学ぼう</div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">user</span></div>
+      </header>
+      <main class="page-content">
+
+        <section class="learn-hero">
+          <h2>🔗 URL直接ナビゲート ― ポップアップを使わずに目的地に直接ワープ</h2>
+          <p>玄関から廊下を通ってリビングに行くのではなく、最初からリビングに直接ワープする方法です。業務サイトでよく遭遇する「PADで要素が取れないUI」を迂回する、<strong>実務必須テクニック</strong>です。</p>
+        </section>
+
+        <div class="card">
+          <div class="card-header"><h3>① 問題提起 ― &lt;object&gt; 埋め込みUIの正体</h3></div>
+          <div class="card-body">
+            <div class="danger-block">
+              このデモサイトの「<strong>スタッフ検索</strong>」ボタン（左サイドバー）を押すと検索ポップアップが表示されます。<br>
+              しかし、このポップアップは <code>&lt;object&gt;</code> タグで <strong>別ページを埋め込んでいる</strong>のです。<br>
+              PADの「UI要素の追加」でポップアップ内の入力欄を取得しようとしても、<strong>取得できません</strong>。
+            </div>
+            <p style="font-size:14px; color:#444; line-height:1.9; margin-top:14px;">実際のコードを見てみましょう。<code>js/common.js</code> の <code>openStaffSearch()</code> 関数の中身：</p>
+            <div class="code-block">// js/common.js の openStaffSearch() 抜粋
+obj = document.createElement('object');
+obj.type = 'text/html';
+obj.data = 'staff-search-popup.html';   // ← 別ページを埋め込んでいる
+document.body.appendChild(obj);</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>② 観察する ― ポップアップは何をしているか？</h3></div>
+          <div class="card-body">
+            <div class="point-block">
+              諦める前に、<strong>ポップアップが最終的に何をしているか</strong>を観察しましょう。<br>
+              staff-search-popup.html の「検索する」ボタンを押すと…<br>
+              → <code>staff-list.html?dept=営業部&amp;role=主任</code> に遷移しています！
+            </div>
+            <p style="font-size:14px; color:#444; line-height:1.9; margin-top:14px;"><code>staff-search-popup.html</code> の <code>doSearch()</code> 関数を見ると、本当にURLに遷移しているだけだとわかります。</p>
+            <div class="code-block">// staff-search-popup.html の doSearch() 抜粋
+function doSearch() {
+  const dept = document.getElementById('sDept').value;
+  const role = document.getElementById('sRole').value;
+  const params = new URLSearchParams();
+  if (dept) params.set('dept', dept);
+  if (role) params.set('role', role);
+  window.top.location.href = 'staff-list.html?' + params.toString();
+  //                ↑ 結局ここに遷移しているだけ！
+}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>③ 解決策 ― URLパラメータを直接組み立てる</h3></div>
+          <div class="card-body">
+            <p style="font-size:14px; color:#444; line-height:1.9;">ポップアップを開いて入力する代わりに、PADで <strong>URLを直接組み立てて遷移</strong> すれば同じ結果になります。</p>
+            <div class="code-block">// ポップアップを操作する代わりに：
+dept = "営業部"
+role = "主任"
+url = "staff-list.html?dept=" + dept + "&role=" + role
+→ Webページに移動する: %url%
+  （= staff-list.html?dept=営業部&role=主任 に直接ナビゲート）</div>
+            <div class="success-block">
+              使うアクション：<strong>「Webページに移動する」</strong>。URLに変数を組み込めば、入力フォームを操作せずに目的の状態にジャンプできます。
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>④ インタラクティブデモ：URL組み立てシミュレーター</h3></div>
+          <div class="card-body">
+            <p style="font-size:14px; color:#444; line-height:1.9;">ポップアップと同じ選択肢で部署と役職を選ぶと、生成されるURLがリアルタイムに表示されます。「このURLを開く」を押すと実際に staff-list.html に遷移し、<strong>ポップアップを使った場合と同じ結果になる</strong>ことが体感できます。</p>
+            <div class="sim-row">
+              <div>
+                <label for="simDept">部署</label>
+                <select id="simDept">
+                  <option value="">（指定なし）</option>
+                  <option value="営業部">営業部</option>
+                  <option value="総務部">総務部</option>
+                  <option value="開発部">開発部</option>
+                  <option value="管理部">管理部</option>
+                </select>
+              </div>
+              <div>
+                <label for="simRole">役職</label>
+                <select id="simRole">
+                  <option value="">（指定なし）</option>
+                  <option value="部長">部長</option>
+                  <option value="課長">課長</option>
+                  <option value="主任">主任</option>
+                  <option value="一般">一般</option>
+                </select>
+              </div>
+            </div>
+            <div class="url-output" id="urlOut">staff-list.html</div>
+            <div style="margin-top:14px;">
+              <button class="btn btn-primary" id="btnGo" aria-label="このURLを開く">🚀 このURLを開く</button>
+              <span style="font-size:12px; color:#888; margin-left:10px;">※ 実際に staff-list.html に遷移します</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>⑤ URLパラメータを読み解くコツ</h3></div>
+          <div class="card-body">
+            <p style="font-size:14px; color:#444; line-height:1.9;">業務サイトの検索結果URLには、こんなパターンがよく出てきます。</p>
+            <ul class="pattern-list">
+              <li><code>?page=2</code> ページ番号の指定</li>
+              <li><code>?search=山田</code> 検索キーワードの指定</li>
+              <li><code>?dept=営業部&amp;role=主任</code> 複数の絞り込み条件（<code>&amp;</code> で連結）</li>
+              <li><code>?id=ST001</code> 特定レコードの直接参照</li>
+            </ul>
+            <div class="point-block">
+              マッハバイト・バイトル・その他の採用媒体でも、検索結果URLにパラメータが付いていることが多い。<strong>知っているかどうかで自動化可能な業務範囲が劇的に変わります。</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <h4>📝 3行まとめ</h4>
+          <ol>
+            <li><code>&lt;object&gt;</code>/<code>&lt;iframe&gt;</code> の埋め込みUIはPADの要素取得が効かない。</li>
+            <li>ポップアップが<strong>最終的に遷移しているURL</strong>を観察し、PADから直接そのURLに行けば同じ結果が得られる。</li>
+            <li>業務サイトでも採用媒体でも応用が効く、<strong>実務最重要テクニック</strong>。</li>
+          </ol>
+        </div>
+
+      </main>
+      <footer class="app-footer">© 2025 PAD練習サイト</footer>
+    </div>
+  </div>
+  <script src="js/common.js?v=2"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('pad-url-navigate');
+    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
+
+    const simDept = document.getElementById('simDept');
+    const simRole = document.getElementById('simRole');
+    const urlOut = document.getElementById('urlOut');
+    const btnGo = document.getElementById('btnGo');
+
+    function buildUrl() {
+      const params = new URLSearchParams();
+      if (simDept.value) params.set('dept', simDept.value);
+      if (simRole.value) params.set('role', simRole.value);
+      const qs = params.toString();
+      return 'staff-list.html' + (qs ? '?' + decodeURIComponent(qs) : '');
+    }
+    function update() { urlOut.textContent = buildUrl(); }
+    simDept.onchange = update;
+    simRole.onchange = update;
+    btnGo.onclick = () => { window.location.href = buildUrl(); };
+    update();
+  </script>
+</body>
+</html>
