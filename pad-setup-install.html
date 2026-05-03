@@ -211,102 +211,13 @@
           </div>
         </div>
 
-        <!-- STEP 2: Edge拡張機能 -->
-        <div class="card">
-          <div class="card-header">
-            <div class="step-header" style="margin:0;">
-              <div class="step-num">2</div>
-              <div class="step-title">Microsoft Edge の拡張機能をインストールする</div>
-            </div>
-          </div>
-          <div class="card-body step-body">
-            <p>
-              PAD が Edge ブラウザを自動操作するために、<strong>専用の拡張機能</strong>をインストールする必要があります。<br>
-              この設定をしないと、Web ページの操作が正しく動作しません。
-            </p>
-
-            <p>以下のリンクから直接インストールするのが最も簡単です：</p>
-
-            <div style="background: #f0f5ff; border: 2px solid #2c7be5; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center;">
-              <a href="https://microsoftedge.microsoft.com/addons/detail/microsoft-power-automate/kagpabjoboikccfdghpdlaaopmgpgfdc" target="_blank" style="display: inline-block; background: #2c7be5; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px;">
-                🔗 Microsoft Power Automate をインストール
-              </a>
-            </div>
-
-            <p>上のリンクをクリックすると Microsoft Edge ストアが開き、「<strong>取得</strong>」ボタンで簡単にインストールできます。</p>
-
-            <p style="font-size: 13px; color: #666; margin-top: 12px;">または、手動でインストールすることもできます：</p>
-
-            <ol class="instruction-list" style="font-size: 13px;">
-              <li>Microsoft Edge を開く</li>
-              <li>右上の「<strong>…</strong>（設定など）」→「<strong>拡張機能</strong>」を選択</li>
-              <li>「<strong>Microsoft Edge アドオンを開く</strong>」をクリック</li>
-              <li>「<strong>Microsoft Power Automate</strong>」を検索してインストール</li>
-            </ol>
-
-            <div class="point-block">
-              💡 <strong>インストール確認方法</strong><br>
-              Edge の右上にパズルピースのアイコンが表示され、一覧に「Microsoft Power Automate」が追加されていればOKです。
-            </div>
-          </div>
-        </div>
-
-        <!-- STEP 3: Edgeのバックグラウンド設定 -->
-        <div class="card">
-          <div class="card-header">
-            <div class="step-header" style="margin:0;">
-              <div class="step-num">3</div>
-              <div class="step-title">Edge のバックグラウンド実行をオフにする</div>
-            </div>
-          </div>
-          <div class="card-body step-body">
-            <p>
-              Edge を閉じた後もバックグラウンドで動き続ける設定があります。<br>
-              これが<strong>オン</strong>のままだと、PAD がフローの中で Edge を操作する際に<strong>予期しないエラーが発生することがあります</strong>。<br>
-              必ずオフに設定しておきましょう。
-            </p>
-
-            <p>以下の手順で設定を変更します：</p>
-
-            <ol class="instruction-list">
-              <li>Microsoft Edge を開く</li>
-              <li>右上の「<strong>…（設定など）</strong>」をクリックし、「<strong>設定</strong>」を選択する</li>
-              <li>左側メニューの「<strong>システムとパフォーマンス</strong>」をクリックする</li>
-              <li>「<strong>システム</strong>」をクリックする</li>
-              <li>「<strong>Microsoft Edge が閉じられた後もバックグラウンドの拡張機能およびアプリの実行を続行する</strong>」を探す</li>
-              <li>トグルスイッチを <strong>オフ</strong>（グレー）にする</li>
-            </ol>
-
-            <div class="setting-path">
-              <span>⚙️ 設定</span>
-              <span class="arrow">›</span>
-              <span>システムとパフォーマンス</span>
-              <span class="arrow">›</span>
-              <span>システム</span>
-              <span class="arrow">›</span>
-              <span>バックグラウンド実行を続行する → <strong style="color:#f87171;">オフ</strong></span>
-            </div>
-
-            <div class="toggle-visual">
-              <div class="toggle-off"></div>
-              <span>オフ（グレー）の状態にしてください</span>
-            </div>
-
-            <div class="warning-block">
-              ⚠️ <strong>なぜオフにするの？</strong><br>
-              バックグラウンド実行がオンの場合、Edge の見えないプロセスが残ったままになります。<br>
-              PAD がフローの中で「Edge を新しく開く」操作をした際に、古いプロセスと競合してエラーになることがあります。
-            </div>
-          </div>
-        </div>
-
         <!-- 完了メッセージ -->
         <div class="card">
           <div class="card-body" style="text-align:center; padding: 32px 20px;">
             <div style="font-size: 40px; margin-bottom: 12px;">🎉</div>
             <div style="font-size: 18px; font-weight: 700; color: #1a3a5c; margin-bottom: 8px;">準備完了！</div>
             <p style="font-size: 14px; color: #555; line-height: 1.8; margin: 0;">
-              3つの設定が完了したら、PAD を使う準備は万端です。<br>
+              セットアップが完了したら、PAD を使う準備は万端です。<br>
               さっそくフローを作ってみましょう！
             </p>
           </div>
