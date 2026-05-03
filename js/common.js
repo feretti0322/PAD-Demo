@@ -16,8 +16,6 @@ function renderSidebar(activePage) {
     { id: 'customer', icon: '🏢', label: '得意先一覧', href: 'customer.html' },
     { id: 'sales-input', icon: '✏️', label: '売上入力', href: 'sales-input.html' },
     { id: 'sales-list', icon: '📋', label: '売上一覧', href: 'sales-list.html' },
-    { id: 'aggregation', icon: '📈', label: 'データ集計', href: 'aggregation.html' },
-    { id: 'campaign', icon: '📣', label: 'キャンペーン管理', href: 'campaign.html' },
   ];
 
   const learnSections = [
@@ -74,6 +72,19 @@ function renderSidebar(activePage) {
       <nav class="sidebar-nav">
         <div class="nav-section">業務デモ</div>
         ${makeNavItems(demoPages)}
+        <div class="nav-section" style="margin-top:8px;">スタッフ</div>
+        <a href="staff-list.html" class="nav-item ${activePage === 'staff-list' ? 'active' : ''}">
+          <span class="nav-icon">👥</span>
+          スタッフ一覧
+        </a>
+        <a href="javascript:void(0)" class="nav-item ${activePage === 'staff-search' ? 'active' : ''}" onclick="openStaffSearch()">
+          <span class="nav-icon">🔍</span>
+          スタッフ検索
+        </a>
+        <a href="javascript:void(0)" class="nav-item ${activePage === 'staff-add' ? 'active' : ''}" onclick="openStaffAdd()">
+          <span class="nav-icon">➕</span>
+          スタッフ追加
+        </a>
         <div class="nav-section" style="margin-top:8px;">学習</div>
         ${learnSections.map(makeCollapsibleSection).join('')}
       </nav>
@@ -85,6 +96,78 @@ function renderSidebar(activePage) {
     </aside>
   `;
 }
+
+// スタッフ検索ポップアップを開く
+function openStaffSearch() {
+  let obj = document.getElementById('staffSearchObj');
+  if (!obj) {
+    obj = document.createElement('object');
+    obj.id = 'staffSearchObj';
+    obj.type = 'text/html';
+    obj.data = 'staff-search-popup.html';
+    obj.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;border:none;display:none;';
+    document.body.appendChild(obj);
+  }
+  obj.style.display = 'block';
+}
+
+function closeStaffSearch() {
+  const obj = document.getElementById('staffSearchObj');
+  if (obj) obj.style.display = 'none';
+}
+
+// スタッフ追加ポップアップを開く
+function openStaffAdd() {
+  let obj = document.getElementById('staffAddObj');
+  if (!obj) {
+    obj = document.createElement('object');
+    obj.id = 'staffAddObj';
+    obj.type = 'text/html';
+    obj.data = 'staff-add-popup.html';
+    obj.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;border:none;display:none;';
+    document.body.appendChild(obj);
+  }
+  obj.style.display = 'block';
+}
+
+function closeStaffAdd() {
+  const obj = document.getElementById('staffAddObj');
+  if (obj) obj.style.display = 'none';
+}
+
+// スタッフデータ（共通）
+const STAFF_DATA = [
+  { id: 'ST001', name: '山田 太郎', dept: '営業部', role: '部長',  joined: '2015/04/01', ext: '1001' },
+  { id: 'ST002', name: '鈴木 花子', dept: '総務部', role: '課長',  joined: '2017/07/01', ext: '2001' },
+  { id: 'ST003', name: '田中 一郎', dept: '開発部', role: '主任',  joined: '2019/04/01', ext: '3001' },
+  { id: 'ST004', name: '佐藤 美咲', dept: '営業部', role: '一般',  joined: '2021/04/01', ext: '1002' },
+  { id: 'ST005', name: '伊藤 健二', dept: '管理部', role: '部長',  joined: '2013/10/01', ext: '4001' },
+  { id: 'ST006', name: '渡辺 さくら', dept: '開発部', role: '課長', joined: '2016/04/01', ext: '3002' },
+  { id: 'ST007', name: '中村 拓也', dept: '営業部', role: '主任',  joined: '2018/04/01', ext: '1003' },
+  { id: 'ST008', name: '小林 奈々', dept: '総務部', role: '一般',  joined: '2022/04/01', ext: '2002' },
+  { id: 'ST009', name: '加藤 誠',   dept: '開発部', role: '一般',  joined: '2023/04/01', ext: '3003' },
+  { id: 'ST010', name: '吉田 京子', dept: '管理部', role: '主任',  joined: '2018/07/01', ext: '4002' },
+  { id: 'ST011', name: '山本 大輔', dept: '営業部', role: '課長',  joined: '2014/04/01', ext: '1004' },
+  { id: 'ST012', name: '松本 理恵', dept: '開発部', role: '主任',  joined: '2019/10/01', ext: '3004' },
+  { id: 'ST013', name: '井上 哲也', dept: '総務部', role: '課長',  joined: '2015/07/01', ext: '2003' },
+  { id: 'ST014', name: '木村 ゆり', dept: '管理部', role: '一般',  joined: '2022/07/01', ext: '4003' },
+  { id: 'ST015', name: '林 雄介',   dept: '営業部', role: '一般',  joined: '2023/10/01', ext: '1005' },
+  { id: 'ST016', name: '清水 麻衣', dept: '開発部', role: '一般',  joined: '2024/04/01', ext: '3005' },
+  { id: 'ST017', name: '山崎 浩二', dept: '管理部', role: '課長',  joined: '2016/10/01', ext: '4004' },
+  { id: 'ST018', name: '池田 千恵', dept: '営業部', role: '主任',  joined: '2017/04/01', ext: '1006' },
+  { id: 'ST019', name: '橋本 俊介', dept: '総務部', role: '主任',  joined: '2018/10/01', ext: '2004' },
+  { id: 'ST020', name: '阿部 里奈', dept: '開発部', role: '課長',  joined: '2015/10/01', ext: '3006' },
+  { id: 'ST021', name: '石川 修',   dept: '管理部', role: '部長',  joined: '2012/04/01', ext: '4005' },
+  { id: 'ST022', name: '前田 彩香', dept: '営業部', role: '一般',  joined: '2024/04/01', ext: '1007' },
+  { id: 'ST023', name: '藤田 達也', dept: '総務部', role: '一般',  joined: '2023/04/01', ext: '2005' },
+  { id: 'ST024', name: '後藤 由美', dept: '開発部', role: '部長',  joined: '2011/04/01', ext: '3007' },
+  { id: 'ST025', name: '岡田 翔太', dept: '管理部', role: '一般',  joined: '2024/10/01', ext: '4006' },
+  { id: 'ST026', name: '村田 香織', dept: '営業部', role: '課長',  joined: '2016/07/01', ext: '1008' },
+  { id: 'ST027', name: '長谷川 亮', dept: '開発部', role: '主任',  joined: '2020/04/01', ext: '3008' },
+  { id: 'ST028', name: '近藤 真由', dept: '総務部', role: '部長',  joined: '2010/04/01', ext: '2006' },
+  { id: 'ST029', name: '坂本 慎吾', dept: '管理部', role: '主任',  joined: '2019/07/01', ext: '4007' },
+  { id: 'ST030', name: '石井 愛',   dept: '営業部', role: '一般',  joined: '2025/04/01', ext: '1009' },
+];
 
 // 顧客データ（共通）
 const CUSTOMERS = [

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スタッフ追加</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', 'Yu Gothic UI', '游ゴシック', sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: rgba(0, 0, 0, 0.5);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 背景クリックで閉じるための透明レイヤー */
+    .overlay-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      cursor: pointer;
+    }
+
+    .modal {
+      position: relative;
+      z-index: 1;
+      background: #fff;
+      border-radius: 12px;
+      width: 480px;
+      max-width: 90vw;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e0e6ed;
+      background: #fff;
+    }
+
+    .modal-header .title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a3a5c;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      line-height: 1;
+      color: #888;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .close-btn:hover { background: #f4f6f9; color: #333; }
+
+    .modal-body {
+      padding: 20px 24px 24px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .form-group label .required {
+      color: #e53e3e;
+      margin-left: 2px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #333;
+      background: #fff;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #2c7be5;
+      box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.15);
+    }
+    .form-control.error {
+      border-color: #e53e3e;
+      box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
+    }
+    select.form-control { cursor: pointer; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn-submit {
+      flex: 1;
+      padding: 11px;
+      background: #0d7377;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover { background: #0a5c60; }
+    .btn-cancel {
+      padding: 11px 18px;
+      background: transparent;
+      color: #555;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-cancel:hover { background: #f4f6f9; }
+
+    /* 成功メッセージ */
+    .success-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+      gap: 12px;
+    }
+    .success-icon { font-size: 48px; }
+    .success-title { font-size: 17px; font-weight: 700; color: #1a3a5c; }
+    .success-sub { font-size: 13px; color: #666; line-height: 1.7; }
+    .btn-close-success {
+      margin-top: 8px;
+      padding: 10px 28px;
+      background: #2c7be5;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-close-success:hover { background: #1a68d1; }
+  </style>
+</head>
+<body>
+
+  <!-- 背景クリックで閉じる -->
+  <div class="overlay-bg" onclick="window.parent.closeStaffAdd()"></div>
+
+  <div class="modal">
+    <div class="modal-header">
+      <span class="title">➕ スタッフ追加</span>
+      <button class="close-btn" onclick="window.parent.closeStaffAdd()">×</button>
+    </div>
+
+    <!-- 入力フォーム -->
+    <div class="modal-body" id="formBody">
+      <div class="form-group">
+        <label>氏名<span class="required">*</span></label>
+        <input type="text" id="aName" class="form-control" placeholder="例：山田 太郎">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>部署<span class="required">*</span></label>
+          <select id="aDept" class="form-control">
+            <option value="">選択してください</option>
+            <option value="営業部">営業部</option>
+            <option value="開発部">開発部</option>
+            <option value="管理部">管理部</option>
+            <option value="総務部">総務部</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>役職<span class="required">*</span></label>
+          <select id="aRole" class="form-control">
+            <option value="">選択してください</option>
+            <option value="部長">部長</option>
+            <option value="課長">課長</option>
+            <option value="主任">主任</option>
+            <option value="一般">一般</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>入社日<span class="required">*</span></label>
+          <input type="date" id="aJoined" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>内線番号</label>
+          <input type="text" id="aExt" class="form-control" placeholder="例：1010">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-submit" onclick="doAdd()">✅ 登録する</button>
+        <button class="btn-cancel" onclick="window.parent.closeStaffAdd()">キャンセル</button>
+      </div>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">登録が完了しました！</div>
+      <div class="success-sub" id="successSub"></div>
+      <button class="btn-close-success" onclick="window.parent.closeStaffAdd()">閉じる</button>
+    </div>
+  </div>
+
+  <script>
+    // 今日の日付をデフォルト設定
+    document.getElementById('aJoined').value = new Date().toISOString().split('T')[0];
+
+    function doAdd() {
+      const name   = document.getElementById('aName').value.trim();
+      const dept   = document.getElementById('aDept').value;
+      const role   = document.getElementById('aRole').value;
+      const joined = document.getElementById('aJoined').value;
+
+      // バリデーション
+      let hasError = false;
+      ['aName', 'aDept', 'aRole', 'aJoined'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
+          el.classList.add('error');
+          hasError = true;
+        } else {
+          el.classList.remove('error');
+        }
+      });
+      if (hasError) return;
+
+      // 入社日を表示形式に変換
+      const joinedFormatted = joined.replace(/-/g, '/');
+
+      // 成功画面を表示
+      document.getElementById('formBody').style.display = 'none';
+      const ss = document.getElementById('successScreen');
+      ss.style.display = 'flex';
+      document.getElementById('successSub').innerHTML =
+        `<strong>${name}</strong>（${dept} / ${role}）<br>入社日：${joinedFormatted}`;
+    }
+
+    // Escapeキーで閉じる
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') window.parent.closeStaffAdd();
+    });
+
+    // エラー状態をリアルタイム解除
+    document.querySelectorAll('.form-control').forEach(el => {
+      el.addEventListener('input', () => el.classList.remove('error'));
+      el.addEventListener('change', () => el.classList.remove('error'));
+    });
+  </script>
+</body>
+</html>

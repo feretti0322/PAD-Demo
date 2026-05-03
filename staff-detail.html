@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スタッフ詳細 | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .detail-hero {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 28px 32px;
+      background: linear-gradient(135deg, #1a3a5c 0%, #2c7be5 100%);
+      border-radius: 12px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .avatar-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+      border: 3px solid rgba(255,255,255,0.4);
+    }
+    .hero-info .name {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .hero-info .sub {
+      font-size: 14px;
+      opacity: 0.85;
+    }
+    .hero-info .staff-id {
+      font-size: 12px;
+      opacity: 0.65;
+      margin-top: 4px;
+      font-family: monospace;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 640px) {
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+
+    .detail-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .detail-item:last-child { border-bottom: none; }
+    .detail-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .detail-value {
+      font-size: 15px;
+      color: #1a3a5c;
+      font-weight: 600;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      background: transparent;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      color: #555;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .back-btn:hover { background: #f4f6f9; }
+
+    .not-found-msg {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+      font-size: 15px;
+    }
+    .not-found-msg .icon { font-size: 48px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">👤 スタッフ詳細</div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">user</span></div>
+      </header>
+
+      <main class="page-content">
+
+        <!-- パンくず & 戻るボタン -->
+        <div class="page-header" style="margin-bottom:20px;">
+          <div>
+            <h2 id="pageTitle">スタッフ詳細</h2>
+            <div class="breadcrumb" id="pageBreadcrumb">スタッフ一覧 › 詳細</div>
+          </div>
+          <a href="staff-list.html" class="back-btn">← スタッフ一覧に戻る</a>
+        </div>
+
+        <!-- コンテンツ -->
+        <div id="detailContent"></div>
+
+      </main>
+      <footer class="app-footer">© 2025 PAD練習サイト</footer>
+    </div>
+  </div>
+
+  <script src="js/common.js?v=2"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('staff-list');
+    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
+
+    // URLパラメータからIDを取得
+    const urlId = new URLSearchParams(location.search).get('id');
+    const staff = STAFF_DATA.find(s => s.id === urlId);
+
+    const deptBadge = { '営業部': 'badge-info', '開発部': 'badge-success', '管理部': 'badge-warning', '総務部': 'badge-secondary' };
+    const roleBadge = { '部長': 'badge-danger', '課長': 'badge-info', '主任': 'badge-success', '一般': 'badge-secondary' };
+
+    // 入社年数計算
+    function calcYears(joined) {
+      const jDate = new Date(joined.replace(/\//g, '-'));
+      const today = new Date();
+      let y = today.getFullYear() - jDate.getFullYear();
+      const m = today.getMonth() - jDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < jDate.getDate())) y--;
+      return y;
+    }
+
+    const container = document.getElementById('detailContent');
+
+    if (!staff) {
+      container.innerHTML = `
+        <div class="card">
+          <div class="card-body not-found-msg">
+            <div class="icon">🔍</div>
+            <p>スタッフが見つかりませんでした。</p>
+            <a href="staff-list.html" class="back-btn" style="margin-top:16px;display:inline-flex;">← スタッフ一覧に戻る</a>
+          </div>
+        </div>`;
+    } else {
+      document.getElementById('pageTitle').textContent = staff.name;
+      document.getElementById('pageBreadcrumb').textContent = `スタッフ一覧 › ${staff.name}`;
+      document.title = `${staff.name} | PAD練習サイト`;
+
+      const years = calcYears(staff.joined);
+
+      container.innerHTML = `
+        <!-- ヒーロー -->
+        <div class="detail-hero">
+          <div class="avatar-circle">👤</div>
+          <div class="hero-info">
+            <div class="name">${staff.name}</div>
+            <div class="sub">
+              <span class="badge ${deptBadge[staff.dept] || 'badge-secondary'}" style="margin-right:6px;">${staff.dept}</span>
+              <span class="badge ${roleBadge[staff.role] || 'badge-secondary'}">${staff.role}</span>
+            </div>
+            <div class="staff-id">ID: ${staff.id}</div>
+          </div>
+        </div>
+
+        <!-- 詳細情報 -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">基本情報</span>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">スタッフID</span>
+                <span class="detail-value" style="font-family:monospace;">${staff.id}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">氏名</span>
+                <span class="detail-value">${staff.name}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">部署</span>
+                <span class="detail-value">
+                  <span class="badge ${deptBadge[staff.dept] || 'badge-secondary'}">${staff.dept}</span>
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">役職</span>
+                <span class="detail-value">
+                  <span class="badge ${roleBadge[staff.role] || 'badge-secondary'}">${staff.role}</span>
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">入社日</span>
+                <span class="detail-value">${staff.joined}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">勤続年数</span>
+                <span class="detail-value">${years} 年</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">内線番号</span>
+                <span class="detail-value" style="font-family:monospace;">${staff.ext}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
