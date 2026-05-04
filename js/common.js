@@ -48,7 +48,6 @@ function renderSidebar(activePage) {
         { id: 'pad-loop', icon: '🔁', label: 'ループを学ぼう', href: 'pad-loop.html' },
         { id: 'pad-condition', icon: '🔀', label: '条件分岐を学ぼう', href: 'pad-condition.html' },
         { id: 'pad-error', icon: '🛡️', label: 'エラーハンドリングを学ぼう', href: 'pad-error.html' },
-        { id: 'pad-subroutine', icon: '📦', label: 'サブルーティンを学ぼう', href: 'pad-subroutine.html' },
       ]
     },
   ];

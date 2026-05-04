@@ -69,7 +69,8 @@
               </tbody>
             </table>
             <div class="point-block">
-              <strong>覚え方：</strong> 数えるのが「回数」なら <strong>Loop</strong>、数えるのが「件数」なら <strong>For each</strong>。
+              <strong>覚え方：</strong> 数えるのが「回数」なら <strong>Loop</strong>、数えるのが「件数」なら <strong>For each</strong>。<br><br>
+              実際のフローで使う頻度は <strong>FOR EACH</strong> が圧倒的に多く、「データテーブルを1件ずつ処理する」という場面がほぼすべてを占めます。Loop（回数指定）はカウントアップなど特殊なケース以外ではほとんど登場しません。
             </div>
           </div>
         </div>
@@ -79,8 +80,7 @@
           <div class="card-body">
             <p style="font-size:14px; color:#444; line-height:1.8;">同じ5人分のスタッフ処理を、人間とPADでどれだけ差が出るか体感してみましょう。</p>
             <div class="demo-controls">
-              <button class="btn btn-secondary" id="btnHuman" aria-label="人間モード開始">👤 人間モード開始</button>
-              <button class="btn btn-primary" id="btnPad" aria-label="PADモード開始">🤖 PADモード開始</button>
+              <button class="btn btn-primary" id="btnStart" aria-label="人間とPADを同時スタート">▶ 人間とPADを同時スタート</button>
               <button class="btn btn-outline" id="btnReset" aria-label="リセット">🔄 リセット</button>
             </div>
             <div class="demo-grid">
@@ -99,34 +99,32 @@
         </div>
 
         <div class="card">
-          <div class="card-header"><h3>③ ループとデータテーブルの組み合わせ</h3></div>
+          <div class="card-header"><h3>③ FOR EACHとデータテーブルの組み合わせ</h3></div>
           <div class="card-body">
-            <p style="font-size:14px; color:#444; line-height:1.8;">スクレイピングで取得したスタッフ一覧（DataTable）を1行ずつ処理する典型パターンです。</p>
-            <div class="code-block">FOR EACH CurrentItem IN StaffList
-    氏名 = CurrentItem['氏名']
-    部署 = CurrentItem['部署']
-    # ↑ 列名はスクレイピング時のヘッダー名と一致させる
-    CALL プロフィールシート出力(氏名, 部署)
-END</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><h3>④ ループ内インデックス（LoopIndex）の利用</h3></div>
-          <div class="card-body">
-            <p style="font-size:14px; color:#444; line-height:1.8;">何件目を処理しているかを <code>LoopIndex</code> で取得できます。進捗ログに便利です。</p>
-            <div class="code-block">FOR EACH staff IN StaffList
-    Display message: "%LoopIndex + 1% / %StaffList.RowsCount% 件目: %staff['氏名']%"
-END</div>
+            <p style="font-size:14px; color:#444; line-height:1.8;">スクレイピングで取得したスタッフ一覧（DataTable）を1行ずつ処理する典型パターンです。▼ FOR EACH が DataTable を上から1行ずつ処理する様子を確認してみましょう。</p>
+            <div class="demo-controls" style="margin-top:8px;">
+              <button class="btn btn-primary" id="btnForEachStart" aria-label="FOR EACHスタート">▶ FOR EACH スタート</button>
+              <button class="btn btn-outline" id="btnForEachReset" aria-label="リセット">🔄 リセット</button>
+            </div>
+            <table class="fe-table" id="feTable" style="width:100%; border-collapse:collapse; margin-top:14px; font-size:13px;">
+              <thead>
+                <tr style="background:#1a3a5c; color:#fff;">
+                  <th style="padding:8px 10px; border:1px solid #e0e6ed; text-align:left;">ID</th>
+                  <th style="padding:8px 10px; border:1px solid #e0e6ed; text-align:left;">氏名</th>
+                  <th style="padding:8px 10px; border:1px solid #e0e6ed; text-align:left;">部署</th>
+                  <th style="padding:8px 10px; border:1px solid #e0e6ed; text-align:left; width:130px;">状態</th>
+                </tr>
+              </thead>
+              <tbody id="feBody"></tbody>
+            </table>
           </div>
         </div>
 
         <div class="summary-card">
-          <h4>📝 3行まとめ</h4>
+          <h4>📝 まとめ</h4>
           <ol>
             <li>ループは「同じ処理をたくさん繰り返す」ためのアクション。回数指定なら <strong>Loop</strong>、件数指定なら <strong>For each</strong>。</li>
-            <li>データテーブル × FOR EACH で「スタッフ全員分」のような実務処理が一気に書ける。</li>
-            <li>進捗の可視化には <code>LoopIndex</code> を活用すると、運用が安定する。</li>
+            <li>実務では <strong>FOR EACH</strong> が圧倒的に多く、データテーブルと組み合わせて「全員分」のような処理を一気に書ける。</li>
           </ol>
         </div>
 
@@ -141,8 +139,7 @@ END</div>
     document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
 
     const targets = STAFF_DATA.slice(0, 5);
-    const btnHuman = document.getElementById('btnHuman');
-    const btnPad = document.getElementById('btnPad');
+    const btnStart = document.getElementById('btnStart');
     const btnReset = document.getElementById('btnReset');
     const humanList = document.getElementById('humanList');
     const padList = document.getElementById('padList');
@@ -157,32 +154,74 @@ END</div>
       return div;
     }
 
-    btnHuman.onclick = async () => {
-      humanList.innerHTML = ''; humanTime.textContent = '';
-      btnHuman.disabled = true;
+    async function runHuman() {
       const start = performance.now();
       for (const s of targets) {
         humanList.appendChild(makeItem(s));
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 2000));
       }
       humanTime.textContent = `所要時間: ${((performance.now() - start) / 1000).toFixed(2)} 秒`;
-      btnHuman.disabled = false;
-    };
+    }
 
-    btnPad.onclick = async () => {
-      padList.innerHTML = ''; padTime.textContent = '';
-      btnPad.disabled = true;
+    async function runPad() {
       const start = performance.now();
-      targets.forEach(s => padList.appendChild(makeItem(s)));
-      await new Promise(r => setTimeout(r, 200));
+      for (const s of targets) {
+        padList.appendChild(makeItem(s));
+        await new Promise(r => setTimeout(r, 300));
+      }
       padTime.textContent = `所要時間: ${((performance.now() - start) / 1000).toFixed(2)} 秒`;
-      btnPad.disabled = false;
+    }
+
+    btnStart.onclick = async () => {
+      humanList.innerHTML = ''; padList.innerHTML = '';
+      humanTime.textContent = ''; padTime.textContent = '';
+      btnStart.disabled = true;
+      await Promise.all([runHuman(), runPad()]);
+      btnStart.disabled = false;
     };
 
     btnReset.onclick = () => {
       humanList.innerHTML = ''; padList.innerHTML = '';
       humanTime.textContent = ''; padTime.textContent = '';
     };
+
+    // FOR EACH デモ
+    const feRows = STAFF_DATA.slice(0, 5);
+    const feBody = document.getElementById('feBody');
+    const btnForEachStart = document.getElementById('btnForEachStart');
+    const btnForEachReset = document.getElementById('btnForEachReset');
+
+    function renderFeTable() {
+      feBody.innerHTML = feRows.map(r => `
+        <tr data-id="${r.id}" style="transition: background .3s;">
+          <td style="padding:8px 10px; border:1px solid #e0e6ed;">${r.id}</td>
+          <td style="padding:8px 10px; border:1px solid #e0e6ed;">${r.name}</td>
+          <td style="padding:8px 10px; border:1px solid #e0e6ed;">${r.dept}</td>
+          <td class="status" style="padding:8px 10px; border:1px solid #e0e6ed; color:#888;">―</td>
+        </tr>
+      `).join('');
+    }
+
+    btnForEachStart.onclick = async () => {
+      btnForEachStart.disabled = true;
+      renderFeTable();
+      const trs = feBody.querySelectorAll('tr');
+      for (const tr of trs) {
+        tr.style.background = '#fef3c7';
+        tr.querySelector('.status').textContent = '⏳ 処理中...';
+        tr.querySelector('.status').style.color = '#b45309';
+        await new Promise(r => setTimeout(r, 800));
+        tr.style.background = '#f0fdf4';
+        tr.querySelector('.status').textContent = '✓ 完了';
+        tr.querySelector('.status').style.color = '#065f46';
+        tr.querySelector('.status').style.fontWeight = '700';
+        await new Promise(r => setTimeout(r, 200));
+      }
+      btnForEachStart.disabled = false;
+    };
+
+    btnForEachReset.onclick = renderFeTable;
+    renderFeTable();
   </script>
 </body>
 </html>

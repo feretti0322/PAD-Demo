@@ -116,17 +116,73 @@ IF retry = 3 THEN THROW "ページ取得に3回失敗"</div>
         <div class="card">
           <div class="card-header"><h3>④ エラーログの記録</h3></div>
           <div class="card-body">
-            <p style="font-size:14px; color:#444; line-height:1.8;">スキップしたスタッフのIDをテキストファイルに追記しておくと、後追い確認が楽になります。</p>
-            <div class="code-block">FOR EACH staff IN StaffList
+            <p style="font-size:14px; color:#444; line-height:1.8;">
+              スキップしたスタッフのIDなどをテキストファイルに追記しておくと、後から「何件成功したか・何件失敗したか」をすぐに確認できます。<br>
+              エラーログを残す基本的な流れは次のとおりです。
+            </p>
+
+            <ol class="instruction-list" style="list-style:none; padding:0; margin:14px 0; counter-reset:inst;">
+              <li style="counter-increment:inst; display:flex; gap:12px; padding:10px 0; border-bottom:1px solid #f0f0f0; font-size:14px; color:#333; line-height:1.7;">
+                <span style="background:#2c7be5; color:#fff; font-size:11px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;">1</span>
+                <div>
+                  <strong>エラーログ用ファイルのパスを変数に格納する</strong><br>
+                  <code>errorLogPath = "C:\PAD\logs\error_log.txt"</code> のように、ファイルパスを変数で管理しておくと変更が楽になります。
+                </div>
+              </li>
+              <li style="counter-increment:inst; display:flex; gap:12px; padding:10px 0; border-bottom:1px solid #f0f0f0; font-size:14px; color:#333; line-height:1.7;">
+                <span style="background:#2c7be5; color:#fff; font-size:11px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;">2</span>
+                <div>
+                  <strong>FOR EACH ループの中で ON BLOCK ERROR を設定する</strong><br>
+                  <code>次の繰り返しに移動</code> を選択します。これでエラーが起きても残りの処理が続きます。
+                </div>
+              </li>
+              <li style="counter-increment:inst; display:flex; gap:12px; padding:10px 0; border-bottom:1px solid #f0f0f0; font-size:14px; color:#333; line-height:1.7;">
+                <span style="background:#2c7be5; color:#fff; font-size:11px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;">3</span>
+                <div>
+                  <strong>ON BLOCK ERROR のブロック内にログ書き込みアクションを追加する</strong><br>
+                  PADの「ファイルにテキストを書き込む」アクションを使用します。<br>
+                  書き込みモードは「<strong>既存のコンテンツに追加する</strong>」を選択してください（上書きにすると前のログが消えます）。<br>
+                  書き込む内容の例：<code>%LoopIndex% 件目: %staff['ID']% のデータが取得できませんでした</code>
+                </div>
+              </li>
+              <li style="counter-increment:inst; display:flex; gap:12px; padding:10px 0; font-size:14px; color:#333; line-height:1.7;">
+                <span style="background:#2c7be5; color:#fff; font-size:11px; font-weight:700; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;">4</span>
+                <div>
+                  <strong>ループ完了後に件数サマリーをログに書き出す</strong><br>
+                  <code>成功: %okCount% 件 / スキップ: %skipCount% 件</code> のように、最後にまとめて記録しておくと運用確認がしやすくなります。
+                </div>
+              </li>
+            </ol>
+
+            <div class="code-block">errorLogPath = "C:\PAD\logs\error_log.txt"
+okCount = 0
+skipCount = 0
+
+FOR EACH staff IN StaffList
     ON BLOCK ERROR (次の繰り返しに移動)
-        # 詳細ページ取得 → Excel出力
         Navigate: staff-detail.html?id=%staff['ID']%
-        ...
+        # Excelへの書き出し処理...
+        okCount = okCount + 1
+        NEXT ITERATION   ← エラーなく完了した場合はここで次へ
+    ON ERROR:
+        ファイルにテキストを書き込む:
+            ファイルパス: %errorLogPath%
+            書き込むテキスト: "%LoopIndex% 件目: %staff['ID']% スキップ"
+            追記モード: オン
+        skipCount = skipCount + 1
     END
-    # ON BLOCK ERROR の末尾でログを書く
-    File append: %errorLogPath%
-        text: "%LoopIndex%: %staff['ID']% スキップ"
-END</div>
+END
+
+# 最後にサマリーを書く
+ファイルにテキストを書き込む:
+    ファイルパス: %errorLogPath%
+    書き込むテキスト: "完了 - 成功: %okCount% 件 / スキップ: %skipCount% 件"
+    追記モード: オン</div>
+
+            <div class="point-block">
+              ログファイルは毎回上書きせず「<strong>追記モード</strong>」で書くのが基本です。<br>
+              日付を含めたファイル名（例：<code>error_log_20250601.txt</code>）にすると、日別の履歴が残って便利です。
+            </div>
           </div>
         </div>
 

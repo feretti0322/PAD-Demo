@@ -31,6 +31,11 @@
     .summary-card { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-left: 4px solid #00b274; border-radius: 8px; padding: 18px 22px; margin-top: 20px; }
     .summary-card h4 { color: #065f46; margin: 0 0 10px; font-size: 15px; }
     .summary-card ol { margin: 0; padding-left: 22px; font-size: 14px; line-height: 2; color: #333; }
+
+    .instruction-list { list-style: none; padding: 0; margin: 12px 0; counter-reset: inst; }
+    .instruction-list li { counter-increment: inst; display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #333; line-height: 1.7; }
+    .instruction-list li:last-child { border-bottom: none; }
+    .instruction-list li::before { content: counter(inst); background: #2c7be5; color: #fff; font-size: 11px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -45,28 +50,41 @@
 
         <section class="learn-hero">
           <h2>🔗 URL直接ナビゲート ― ポップアップを使わずに目的地に直接ワープ</h2>
-          <p>玄関から廊下を通ってリビングに行くのではなく、最初からリビングに直接ワープする方法です。業務サイトでよく遭遇する「PADで要素が取れないUI」を迂回する、<strong>実務必須テクニック</strong>です。</p>
+          <p><code>&lt;object&gt;</code> や <code>&lt;iframe&gt;</code> で別ページを埋め込んでいるUIは、PADのUI要素ピッカーで赤い枠が表示されません。ポップアップを操作する代わりに、目的のURLへ直接ナビゲートすることで回避できます。</p>
         </section>
 
         <div class="card">
           <div class="card-header"><h3>① 問題提起 ― &lt;object&gt; 埋め込みUIの正体</h3></div>
           <div class="card-body">
-            <div class="danger-block">
-              このデモサイトの「<strong>スタッフ検索</strong>」ボタン（左サイドバー）を押すと検索ポップアップが表示されます。<br>
-              しかし、このポップアップは <code>&lt;object&gt;</code> タグで <strong>別ページを埋め込んでいる</strong>のです。<br>
-              PADの「UI要素の追加」でポップアップ内の入力欄を取得しようとしても、<strong>取得できません</strong>。
-            </div>
-            <p style="font-size:14px; color:#444; line-height:1.9; margin-top:14px;">実際のコードを見てみましょう。<code>js/common.js</code> の <code>openStaffSearch()</code> 関数の中身：</p>
-            <div class="code-block">// js/common.js の openStaffSearch() 抜粋
-obj = document.createElement('object');
-obj.type = 'text/html';
-obj.data = 'staff-search-popup.html';   // ← 別ページを埋め込んでいる
-document.body.appendChild(obj);</div>
+            <p style="font-size:14px; color:#444; line-height:1.9;">このデモサイトでも「スタッフ検索」や「スタッフ追加」のポップアップがこの仕様になっており、UI要素ピッカーで赤枠が出ません。</p>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><h3>② 観察する ― ポップアップは何をしているか？</h3></div>
+          <div class="card-header"><h3>② 解決策 ― 埋め込みページのURLを特定して直接ナビゲート</h3></div>
+          <div class="card-body">
+            <p style="font-size:14px; color:#444; line-height:1.9;">ポップアップ内を操作する代わりに、<strong>その中身として読み込まれているページのURLそのもの</strong>へ PAD から直接ナビゲートします。URLさえわかれば操作の再現は完了です。<br>URLはブラウザの開発者ツールで簡単に確認できます。</p>
+            <ol class="instruction-list">
+              <li><strong>F12</strong> を押して開発者ツールを開く</li>
+              <li>開発者ツールを開いた状態でポップアップを開くメニューをクリック</li>
+              <li><strong>Elements</strong> タブを開くと、一番下に新しい文字列（ポップアップのHTMLソース）が追加される</li>
+              <li>その文字列をダブルクリックすると、読み込まれているページのフルURLが確認できる</li>
+            </ol>
+            <div class="success-block">
+              使うアクション：<strong>「Webページに移動する」</strong>。確認したURLをそのまま指定するだけで、ポップアップを開かずに同じ画面にジャンプできます。
+            </div>
+            <div class="point-block">
+              この方法はどんな業務サイトでも使えます。「ポップアップが読み込んでいるページのURL」さえわかれば、PADから直接そのURLにナビゲートするだけで操作が再現できます。
+            </div>
+          </div>
+        </div>
+
+        <hr style="border:none; border-top:2px dashed #d0d7de; margin:36px 0 24px;">
+        <div style="background:#fef3c7; color:#92400e; display:inline-block; padding:6px 14px; border-radius:999px; font-size:13px; font-weight:700; margin-bottom:14px;">📚 ここから番外編</div>
+        <p style="font-size:13px; color:#666; line-height:1.8; margin:0 0 18px;">以下は本テーマと文脈を切り離した補足です。一般的な業務サイトでは、<strong>検索結果ページのURLにパラメータが付いていることが多く</strong>、入力フォームを操作する代わりに URL を組み立てて直接遷移する手法も使えます。</p>
+
+        <div class="card">
+          <div class="card-header"><h3>番外編① 観察する ― ポップアップは何をしているか？</h3></div>
           <div class="card-body">
             <div class="point-block">
               諦める前に、<strong>ポップアップが最終的に何をしているか</strong>を観察しましょう。<br>
@@ -88,7 +106,7 @@ function doSearch() {
         </div>
 
         <div class="card">
-          <div class="card-header"><h3>③ 解決策 ― URLパラメータを直接組み立てる</h3></div>
+          <div class="card-header"><h3>番外編② URLパラメータを直接組み立てる</h3></div>
           <div class="card-body">
             <p style="font-size:14px; color:#444; line-height:1.9;">ポップアップを開いて入力する代わりに、PADで <strong>URLを直接組み立てて遷移</strong> すれば同じ結果になります。</p>
             <div class="code-block">// ポップアップを操作する代わりに：
@@ -97,14 +115,11 @@ role = "主任"
 url = "staff-list.html?dept=" + dept + "&role=" + role
 → Webページに移動する: %url%
   （= staff-list.html?dept=営業部&role=主任 に直接ナビゲート）</div>
-            <div class="success-block">
-              使うアクション：<strong>「Webページに移動する」</strong>。URLに変数を組み込めば、入力フォームを操作せずに目的の状態にジャンプできます。
-            </div>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><h3>④ インタラクティブデモ：URL組み立てシミュレーター</h3></div>
+          <div class="card-header"><h3>番外編③ インタラクティブデモ：URL組み立てシミュレーター</h3></div>
           <div class="card-body">
             <p style="font-size:14px; color:#444; line-height:1.9;">ポップアップと同じ選択肢で部署と役職を選ぶと、生成されるURLがリアルタイムに表示されます。「このURLを開く」を押すと実際に staff-list.html に遷移し、<strong>ポップアップを使った場合と同じ結果になる</strong>ことが体感できます。</p>
             <div class="sim-row">
@@ -137,8 +152,8 @@ url = "staff-list.html?dept=" + dept + "&role=" + role
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-header"><h3>⑤ URLパラメータを読み解くコツ</h3></div>
+        <div class="card" style="border-left: 4px solid #f6a623; background: #fffaf0;">
+          <div class="card-header" style="background: #fef3c7;"><h3>💡 コラム：URLパラメータを読み解くコツ</h3></div>
           <div class="card-body">
             <p style="font-size:14px; color:#444; line-height:1.9;">業務サイトの検索結果URLには、こんなパターンがよく出てきます。</p>
             <ul class="pattern-list">
@@ -148,7 +163,7 @@ url = "staff-list.html?dept=" + dept + "&role=" + role
               <li><code>?id=ST001</code> 特定レコードの直接参照</li>
             </ul>
             <div class="point-block">
-              マッハバイト・バイトル・その他の採用媒体でも、検索結果URLにパラメータが付いていることが多い。<strong>知っているかどうかで自動化可能な業務範囲が劇的に変わります。</strong>
+              一般的な業務サイトでも、検索結果URLにパラメータが付いていることが多い。<strong>知っているかどうかで自動化可能な業務範囲が劇的に変わります。</strong>
             </div>
           </div>
         </div>

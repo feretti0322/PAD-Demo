@@ -49,7 +49,7 @@
 
         <section class="learn-hero">
           <h2>📊 データテーブル ― Excelの表をPADの中で扱える変数</h2>
-          <p>スクレイピング結果やExcelからの読み込み結果は、すべて <strong>DataTable</strong> 型の変数に格納されます。行と列を持つ表形式のデータを、PADの中で自在に操作できます。</p>
+          <p>スクレイピング結果やExcelから表全体を抽出した場合は、DataTable 型の変数に格納されます。行と列を持つ表形式のデータを、PADの中で自在に操作できます。</p>
         </section>
 
         <div class="card">
@@ -69,28 +69,27 @@
               <div class="op-card">
                 <div class="op-icon">🔍</div>
                 <h4>フィルタ・検索</h4>
-                <p>「<strong>データテーブルをフィルター処理</strong>」で条件に合う行だけ抽出</p>
+                <p>「<strong>フィルターデータテーブル</strong>」で条件に合う行だけ抽出</p>
               </div>
               <div class="op-card">
                 <div class="op-icon">📤</div>
                 <h4>書き出し</h4>
-                <p>「<strong>Excelワークシートに書き込み</strong>」で DataTable をシートに反映</p>
+                <p>「<strong>Excelワークシートに書き込む</strong>」で DataTable をシートに反映</p>
               </div>
             </div>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><h3>② FOR EACH との組み合わせ</h3></div>
+          <div class="card-header"><h3>② DataTable の中の値を取り出す</h3></div>
           <div class="card-body">
-            <p style="font-size:14px; color:#444; line-height:1.8;">DataTable を1行ずつ取り出す典型パターン。列名は抽出時のヘッダー名と一致させます。</p>
-            <div class="code-block">FOR EACH CurrentItem IN StaffList
-    氏名 = CurrentItem['氏名']
-    部署 = CurrentItem['部署']
-    # ※ 列名はスクレイピング時のヘッダー名と一致させる
-END</div>
+            <p style="font-size:14px; color:#444; line-height:1.8;">
+              DataTable の中の特定の値を取り出すには、変数名の後ろに <code>[]</code> を使って「行番号」と「列番号 or 列名」を指定します。<br>
+              DataTable 型の添字は <strong>0 から数え始める</strong>ことに注意してください。
+            </p>
             <div class="point-block">
-              <strong>列名 vs インデックス：</strong> <code>CurrentItem['氏名']</code> のような<strong>列名指定</strong>のほうが、列順が変わってもフローが壊れません。<code>CurrentItem[0]</code> のような<strong>インデックス指定</strong>はサイト側の改修に弱い。
+              列名を使った指定（例：<code>CurrentItem['氏名']</code>）は、列の順番が変わってもフローが壊れません。<br>
+              インデックスだけの指定（例：<code>CurrentItem[0]</code>）はシンプルですが、サイト改修に弱いのでご注意を。
             </div>
           </div>
         </div>
@@ -98,18 +97,7 @@ END</div>
         <div class="card">
           <div class="card-header"><h3>③ インタラクティブデモ：データテーブルビューア</h3></div>
           <div class="card-body">
-            <p style="font-size:14px; color:#444; line-height:1.8;">スタッフ一覧の先頭10件を DataTable に見立てて表示します。部署フィルタを変えると、絞り込み結果がリアルタイムに反映されます。<strong>左端の「Index」</strong>はFOR EACHの <code>LoopIndex</code> に相当します。</p>
-            <div class="viewer-controls">
-              <label for="filterDept">部署で絞り込み：</label>
-              <select id="filterDept">
-                <option value="">全部署</option>
-                <option value="営業部">営業部</option>
-                <option value="総務部">総務部</option>
-                <option value="開発部">開発部</option>
-                <option value="管理部">管理部</option>
-              </select>
-              <span class="viewer-count" id="viewerCount">10 件</span>
-            </div>
+            <p style="font-size:14px; color:#444; line-height:1.8;">下の表は、変数名 <code style="background:#1e293b; color:#facc15; padding:2px 8px; border-radius:4px; font-weight:700;">StaffList</code> という DataTable に格納されたスタッフ一覧（先頭10件）です。表の中のセルをクリックすると、PADでその値を取り出すときの書き方が表示されます。行・列どちらも <strong>0 から数え始める</strong>ことを確認してください。</p>
             <table class="dt-table" id="dtTable">
               <thead>
                 <tr><th>Index</th><th>ID</th><th>氏名</th><th>部署</th><th>役職</th><th>入社日</th></tr>
@@ -140,25 +128,31 @@ END</div>
 
     const baseRows = STAFF_DATA.slice(0, 10);
     const tbody = document.getElementById('dtBody');
-    const filter = document.getElementById('filterDept');
-    const count = document.getElementById('viewerCount');
+    const COLS = ['(Index)', 'ID', '氏名', '部署', '役職', '入社日'];
 
     function render() {
-      const dept = filter.value;
-      const rows = dept ? baseRows.filter(r => r.dept === dept) : baseRows;
-      tbody.innerHTML = rows.map((r, i) => `
-        <tr>
+      tbody.innerHTML = baseRows.map((r, i) => `
+        <tr data-row="${i}">
           <td class="idx">${i}</td>
-          <td>${r.id}</td>
-          <td>${r.name}</td>
-          <td>${r.dept}</td>
-          <td>${r.role}</td>
-          <td>${r.joined}</td>
+          <td data-col="1" data-name="ID">${r.id}</td>
+          <td data-col="2" data-name="氏名">${r.name}</td>
+          <td data-col="3" data-name="部署">${r.dept}</td>
+          <td data-col="4" data-name="役職">${r.role}</td>
+          <td data-col="5" data-name="入社日">${r.joined}</td>
         </tr>
-      `).join('') || '<tr><td colspan="6" style="text-align:center; color:#888; padding:20px;">該当なし</td></tr>';
-      count.textContent = `${rows.length} 件`;
+      `).join('');
+
+      tbody.querySelectorAll('td[data-col]').forEach(td => {
+        td.style.cursor = 'pointer';
+        td.onclick = () => {
+          const row = td.parentElement.dataset.row;
+          const col = td.dataset.col;
+          const name = td.dataset.name;
+          const value = td.textContent;
+          alert(`PADでの取り出し方：\n\n  StaffList[${row}][${col}]\n  StaffList[${row}]['${name}']\n\n→ どちらも値: "${value}"`);
+        };
+      });
     }
-    filter.onchange = render;
     render();
   </script>
 </body>

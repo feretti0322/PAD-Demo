@@ -182,7 +182,7 @@
                 <tr>
                   <td class="col-label">PADのアクション名</td>
                   <td>新しい Chrome を起動する</td>
-                  <td>Chrome WebDriverを使用してChromeを起動する</td>
+                  <td>新しい Chrome を起動する</td>
                 </tr>
                 <tr>
                   <td class="col-label">仕組み</td>
@@ -207,6 +207,9 @@
               </tbody>
             </table>
             <div class="point-block">
+              <strong>📌 アクション名は同じ、設定で切り替える：</strong> PADではどちらも <strong>「新しい Chrome を起動する」</strong> という同じアクションです。アクションの設定画面にある <strong>「操作方法」</strong> プルダウンで <strong>「ブラウザー拡張機能」</strong>（標準起動）と <strong>「Webdriver」</strong>（WebDriver起動）を切り替えます。
+            </div>
+            <div class="point-block">
               <strong>たとえるなら：</strong> 標準起動は「すでに走っている車に後から乗り込む」方式。WebDriver起動は「PADがドライバーとして最初から運転席に座る」方式。後者のほうが、業務サイトという複雑な道では安定して走れます。
             </div>
           </div>
@@ -218,33 +221,51 @@
             <ol class="instruction-list">
               <li>
                 <div>
-                  <strong>Chromeのバージョンを確認する</strong><br>
-                  アドレスバーに <code>chrome://version</code> を入力 → 「Google Chrome」の行を確認 → メジャーバージョン（例：<code>124</code>）をメモする。
+                  <strong>手順1：Chromeのバージョンを確認する</strong><br>
+                  Chrome を開き、アドレスバーに <code>chrome://settings/help</code> と入力する。<br>
+                  バージョン番号（例: <code>138.0.7204.169</code>）をメモする。
                 </div>
               </li>
               <li>
                 <div>
-                  <strong>ChromeDriver をダウンロードする</strong><br>
-                  Chrome 115以降は <code>https://googlechromelabs.github.io/chrome-for-testing/</code> から、自分のバージョンに対応する <code>chromedriver</code> の <code>win64</code> をダウンロード。
+                  <strong>手順2：対応する ChromeDriver をダウンロードする</strong><br>
+                  公式 ChromeDriver ページ（ <a href="https://developer.chrome.com/docs/chromedriver" target="_blank" style="color:#2c7be5;">https://developer.chrome.com/docs/chromedriver</a> ）にアクセスする。<br>
+                  ダウンロードページで、Chromeブラウザのバージョンと一致するバージョンを選択する（通常、最初の3つの数字が一致していれば問題ない）。<br>
+                  <code>win-x64</code> アーキテクチャに適したダウンロードリンクを選択し、ZIP ファイルをダウンロードする。
                 </div>
               </li>
               <li>
                 <div>
-                  <strong>展開して所定のフォルダに配置する</strong><br>
-                  推奨パス：<code>C:\PAD\drivers\chromedriver.exe</code>
+                  <strong>手順3：ダウンロードした ZIP ファイルを解凍する</strong><br>
+                  ダウンロードフォルダに保存された ZIP ファイル（例：<code>chromedriver-win64.zip</code>）を右クリックし、<strong>「すべて展開」</strong> を選択する。<br>
+                  展開先は既定のままで問題ない。展開後、<code>chromedriver-win64</code> フォルダの中に <code>chromedriver.exe</code> が含まれていることを確認する。
                 </div>
               </li>
               <li>
                 <div>
-                  <strong>PADで設定する</strong><br>
-                  「Chrome WebDriverを使用してChromeを起動する」アクションを追加し、「ChromeDriverのパス」に <code>C:\PAD\drivers\chromedriver.exe</code> を指定。
+                  <strong>手順4：Power Automate Desktop 用のフォルダを作成する</strong><br>
+                  <strong>エクスプローラー</strong>を開く。<br>
+                  アドレスバーに以下をコピーして貼り付け、<strong>Enter</strong> キーを押す：<br>
+                  <div class="code-block" style="margin-top:6px;">%LOCALAPPDATA%\Microsoft\Power Automate Desktop</div>
+                  フォルダー内で <strong>右クリック → 「新規作成」 → 「フォルダー」</strong> を選択する。<br>
+                  フォルダー名を <code>WebDrivers</code> にする（<strong>大文字・小文字は正確に入力すること</strong>）。
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong>手順5：chromedriver.exe を配置する</strong><br>
+                  手順3で解凍したフォルダから <code>chromedriver.exe</code> をコピーする。<br>
+                  手順4で作成した <code>Power Automate Desktop\WebDrivers</code> フォルダーの中に貼り付ける。<br><br>
+                  最終的なフォルダー構成は次の通りです：
+                  <div class="code-block" style="margin-top:6px;">AppData
+ └ Local
+   └ Microsoft
+     └ Power Automate Desktop
+       └ WebDrivers
+         └ chromedriver.exe</div>
                 </div>
               </li>
             </ol>
-            <div class="code-block">起動アクションの設定例：
-  WebDriver: Chrome
-  ChromeDriver パス: C:\PAD\drivers\chromedriver.exe
-  初期URL: https://example.com/login</div>
           </div>
         </div>
 
@@ -259,23 +280,11 @@
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-header"><h3>④ 設定確認チェックリスト</h3></div>
-          <div class="card-body">
-            <ul class="check-list">
-              <li><code>C:\PAD\drivers\chromedriver.exe</code> が存在する</li>
-              <li>PADアクションで「ChromeDriverのパス」が正しく設定されている</li>
-              <li>ChromeのバージョンとChromeDriverのメジャーバージョンが一致している</li>
-              <li>Chromeがデフォルトのプロファイルで起動できる</li>
-            </ul>
-          </div>
-        </div>
-
         <div class="summary-card">
           <h4>📝 3行まとめ</h4>
           <ol>
-            <li>PADのChrome起動には <strong>標準起動</strong> と <strong>WebDriver起動</strong> の2種類があり、業務サイト対応では後者が本命。</li>
-            <li>ChromeDriver を <code>C:\PAD\drivers\</code> に配置し、PADアクションでパスを指定すれば準備完了。</li>
+            <li>PADの「新しい Chrome を起動する」アクションは「操作方法」プルダウンで <strong>標準起動</strong>と <strong>WebDriver起動</strong>を切り替える。業務サイト対応では後者が本命。</li>
+            <li>ChromeDriver は <code>%LOCALAPPDATA%\Microsoft\Power Automate Desktop\WebDrivers\chromedriver.exe</code> に配置すれば PAD が自動で読み込んでくれる。</li>
             <li>Chromeの自動更新でバージョン乖離が起きるため、月次で点検する運用が必要。</li>
           </ol>
         </div>
