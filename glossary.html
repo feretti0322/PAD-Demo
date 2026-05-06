@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用語集 | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .learn-hero {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0d7377 100%);
+      border-radius: 12px; padding: 36px; color: #fff; margin-bottom: 24px;
+    }
+    .learn-hero h2 { font-size: 24px; font-weight: 700; margin: 0 0 12px; }
+    .learn-hero p { font-size: 15px; line-height: 1.9; margin: 0; opacity: 0.95; }
+
+    .point-block { background: #f4f6f9; border-left: 4px solid #2c7be5; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 14px; line-height: 1.9; color: #333; margin-top: 16px; }
+    .point-block strong { color: #1a3a5c; }
+
+    .summary-card { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-left: 4px solid #00b274; border-radius: 8px; padding: 18px 22px; margin-top: 20px; }
+    .summary-card h4 { color: #065f46; margin: 0 0 10px; font-size: 15px; }
+    .summary-card ol { margin: 0; padding-left: 22px; font-size: 14px; line-height: 2; color: #333; }
+
+    .search-bar { width: 100%; padding: 12px 16px; font-size: 14px; border: 2px solid #e0e6ed; border-radius: 8px; box-sizing: border-box; }
+    .search-bar:focus { outline: none; border-color: #2c7be5; }
+
+    .cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .cat-tab { background: #f4f6f9; color: #1a3a5c; border: 1px solid #e0e6ed; border-radius: 18px; padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all .15s; }
+    .cat-tab:hover { background: #e8eef5; }
+    .cat-tab.active { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+
+    .term-card { background: #fff; border: 1px solid #e0e6ed; border-radius: 10px; padding: 18px 22px; margin-top: 14px; }
+    .term-card .term-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .term-card .term-name { font-size: 18px; font-weight: 700; color: #1a3a5c; }
+    .term-card .term-alt { font-size: 12px; color: #6b7280; }
+    .term-card .cat-badge { background: #eff6ff; color: #1d4ed8; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    .term-card .term-desc { font-size: 14px; line-height: 1.9; color: #333; margin: 6px 0; }
+    .term-card .term-example { background: #1e293b; color: #7dd3fc; border-radius: 6px; padding: 8px 12px; font-family: monospace; font-size: 13px; line-height: 1.7; margin: 8px 0; }
+    .term-card .term-related { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .term-card .related-chip { background: #f4f6f9; color: #1a3a5c; padding: 3px 10px; border-radius: 10px; font-size: 11px; cursor: pointer; border: 1px solid #e0e6ed; }
+    .term-card .related-chip:hover { background: #e8eef5; }
+
+    .empty-msg { text-align: center; color: #9ca3af; padding: 30px; font-size: 14px; }
+    .term-card.highlight { box-shadow: 0 0 0 3px rgba(44,123,229,0.3); transition: box-shadow .8s; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">📖 用語集</div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">user</span></div>
+      </header>
+      <main class="page-content">
+
+        <section class="learn-hero">
+          <h2>📖 用語集 ― 研修で出てくる言葉の早見表</h2>
+          <p>研修中に「セレクタって何？」「WebDriverと普通のChromeは何が違うの？」と感じたら、まずここを開いてください。<strong>業務文脈での意味を、難しい用語を使わずに説明</strong>しています。検索バーで一発で見つかります。</p>
+        </section>
+
+        <div class="card">
+          <div class="card-header"><h3>🔍 用語を探す</h3></div>
+          <div class="card-body">
+            <input type="text" id="searchInput" class="search-bar" placeholder="用語名・説明文で検索（例：WebDriver / 変数 / セレクタ）">
+            <div class="cat-tabs" id="catTabs"></div>
+          </div>
+        </div>
+
+        <div id="termList"></div>
+
+        <div class="summary-card">
+          <h4>📝 3行まとめ</h4>
+          <ol>
+            <li>用語の意味は「業務文脈で何の役に立つか」で覚えると忘れにくい。</li>
+            <li>WebDriver・&lt;object&gt;・URL直接ナビゲートは、業務サイト自動化の3大ハマりポイント。第4・5回で必ず体感する。</li>
+            <li>用語が分からなくなったら、研修中でも遠慮なくこのページを開く。検索バーで一発で見つかる。</li>
+          </ol>
+        </div>
+
+      </main>
+      <footer class="app-footer">© 2025 PAD練習サイト</footer>
+    </div>
+  </div>
+  <script src="js/common.js?v=2"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('glossary');
+    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
+
+    const GLOSSARY = [
+      { term: '変数', altName: 'Variable', category: 'プログラミング基礎',
+        description: '値を一時的に入れておく「名前付きの箱」。スタッフID・ファイルパス・繰り返し回数など、フローの途中で覚えておきたい値はすべて変数に入れる。',
+        example: '%StaffId% に "ST001" を入れる → 後で %StaffId% と書けば "ST001" として使える',
+        related: ['データ型', 'グローバル変数'] },
+      { term: 'データ型', altName: 'Data Type', category: 'プログラミング基礎',
+        description: '変数に入れる値の「種類」。文字列・数値・日付・データテーブルなど。型が違うと計算や比較で意図しない結果になることがある。',
+        example: '"100" は文字列、100 は数値。前者は足し算できないが、後者はできる',
+        related: ['変数', 'データテーブル'] },
+      { term: 'データテーブル', altName: 'Data Table', category: 'PAD基本',
+        description: 'Excelの表のように「行と列」を持つデータのかたまり。スクレイピングで取得した一覧や、Excelから読み込んだ表はこの形式で扱う。',
+        example: 'スタッフ一覧（ID/氏名/部署）の20行をデータテーブルに入れて、FOR EACHで1行ずつ処理する',
+        related: ['FOR EACH', 'スクレイピング'] },
+      { term: 'FOR EACH', altName: 'For each（フォーイーチ）', category: 'PAD基本',
+        description: 'リストやデータテーブルの中身を「1件ずつ取り出して処理する」ためのループアクション。「全員分やる」「全行処理する」の決まり文句。',
+        example: 'スタッフ一覧の各行に対して、staff-detail.html?id=◯◯ を開いて情報を取得する',
+        related: ['Loop', 'データテーブル'] },
+      { term: 'Loop', altName: 'ループ', category: 'PAD基本',
+        description: '回数を指定して同じ処理を繰り返すアクション。「3回試す」「100まで数える」のような用途。実務では FOR EACH のほうが圧倒的に多く使う。',
+        example: '1から10まで %i% に入れながら、メッセージを表示する',
+        related: ['FOR EACH', '条件分岐'] },
+      { term: '条件分岐', altName: 'IF / ELSE', category: 'PAD基本',
+        description: '「もし◯◯なら△△する、そうでなければ□□する」という分岐処理。データの中身によって処理を変えたいときに使う。',
+        example: 'もし勤続年数が10年以上なら「ベテラン」と書き、そうでなければ何もしない',
+        related: ['FOR EACH', 'エラーハンドリング'] },
+      { term: 'エラーハンドリング', altName: 'ON BLOCK ERROR', category: 'PAD基本',
+        description: 'フロー実行中にエラーが起きたときの挙動を事前に決めておく仕組み。「全体を止める」か「その1件だけ飛ばして続ける」かを選べる。',
+        example: '700名のうち1名分だけページが壊れていても、その人をスキップして残り699名を処理する',
+        related: ['条件分岐', 'リトライ'] },
+      { term: 'サブフロー', altName: 'Subflow', category: 'PAD基本',
+        description: '何度も使う処理に名前をつけて再利用できる部品にしたもの。ログイン処理・Excel保存処理など、共通化したい処理に使う。',
+        example: '「ログイン処理」をサブフロー化すると、複数のフローから呼び出せて、修正は1か所で済む',
+        related: ['変数', 'エラーハンドリング'] },
+      { term: 'スクレイピング', altName: 'Scraping', category: 'ブラウザ自動化',
+        description: 'Webページから情報を抜き出す自動処理。表・リスト・テキストをデータテーブルや変数に取り込める。',
+        example: '社内サイトのスタッフ一覧テーブル（20行）をスクレイピングしてExcelに転記',
+        related: ['セレクタ', 'データテーブル', 'WebDriver'] },
+      { term: 'セレクタ', altName: 'Selector', category: 'ブラウザ自動化',
+        description: 'Webページ上の「どの要素を操作するか」を指定する住所のようなもの。ボタン・入力欄・テキストを特定するために使う。',
+        example: 'id=loginBtn のボタンをクリック / class=staff-name の文字を取得',
+        related: ['スクレイピング', 'WebDriver'] },
+      { term: 'WebDriver', altName: 'ChromeDriver', category: 'ブラウザ自動化',
+        description: 'PADから本格的にブラウザを操作するために必要な「ブラウザ専用のリモコン」。標準のChrome起動ではうまくいかない業務サイトでも、これを使うと安定して動く。',
+        example: 'Chrome WebDriver を使ってログイン画面を開き、ID/PWを入力してクリック',
+        related: ['セレクタ', '<object>', 'CDP'] },
+      { term: 'CDP', altName: 'Chrome DevTools Protocol', category: 'ブラウザ自動化',
+        description: 'PADの「Chrome起動」アクションが使う通信方式。手軽だが、業務サイトの一部要素（特にポップアップ）が取れないことがある。WebDriverに切り替えると解決することが多い。',
+        example: '通常の「Chrome起動」アクションはこの方式で動く',
+        related: ['WebDriver', 'セレクタ'] },
+      { term: '<object>', altName: 'object要素', category: 'ブラウザ自動化',
+        description: 'Webページ内に別のページを埋め込むHTMLタグ。PADから中身の要素を取得しづらい性質があり、研修ではこの問題を「URL直接ナビゲート」で回避する。',
+        example: 'staff-search-popup.html は <object> で埋め込まれているため、内部のフォームをPADで操作できない',
+        related: ['<iframe>', 'URL直接ナビゲート'] },
+      { term: '<iframe>', altName: 'iframe要素', category: 'ブラウザ自動化',
+        description: '<object>と似た「ページ内ページ」のHTMLタグ。<object>よりは扱いやすいが、それでもセレクタ取得に失敗するケースがある。',
+        example: '広告枠やSNSの埋め込み投稿でよく使われる',
+        related: ['<object>', 'セレクタ'] },
+      { term: 'URL直接ナビゲート', altName: 'URL Direct Navigation', category: 'ブラウザ自動化',
+        description: '検索フォームを操作する代わりに、結果ページのURLを直接組み立てて開く手法。<object>埋め込みフォームを回避する強力なテクニック。',
+        example: 'staff-list.html?dept=営業&keyword=田中 を直接開いて、検索結果ページから始める',
+        related: ['<object>', 'スクレイピング'] },
+      { term: 'URLパラメータ', altName: 'Query String', category: 'ブラウザ自動化',
+        description: 'URLの「?」以降に付ける検索条件。?id=ST001 や ?dept=営業 のように、ページに値を渡す手段。',
+        example: 'staff-detail.html?id=ST001 → ページ側がURLからIDを読み取って表示する',
+        related: ['URL直接ナビゲート'] },
+      { term: 'Excelテンプレート', altName: 'Template', category: 'Excel連携',
+        description: '書式・項目・レイアウトが整った「ひな形Excelファイル」。コピーして個別ファイルとして使うことで、毎回ゼロから作らずに済む。',
+        example: 'プロフィールシート_テンプレート.xlsx をコピーし、スタッフごとにファイル名を変えて保存',
+        related: ['ファイルコピー'] },
+      { term: 'ファイルコピー', altName: 'Copy File', category: 'Excel連携',
+        description: 'PADの「ファイルのコピー」アクション。テンプレート運用で必須。コピー先のファイル名を変数で組み立てるのがコツ。',
+        example: 'プロフィールシート_テンプレート.xlsx を %StaffId%_%Name%.xlsx という名前でコピー',
+        related: ['Excelテンプレート', '変数'] },
+      { term: 'グローバル変数', altName: 'Global Variable', category: 'プログラミング基礎',
+        description: 'フロー全体で使い回せる変数。サブフローからも参照できる。よく使う設定値（出力フォルダパスなど）に向く。',
+        example: '%OutputFolder% = "C:\\Users\\...\\Desktop\\PAD研修_スタッフプロフィール\\"',
+        related: ['変数', 'サブフロー'] },
+      { term: 'リトライ', altName: 'Retry', category: 'PAD基本',
+        description: 'エラーが起きたとき、すぐ諦めずに「もう一度試す」処理。一時的なネットワーク不調や読み込み遅延に有効。',
+        example: 'WebページのDOM取得に失敗したら、3秒待って最大3回までリトライする',
+        related: ['エラーハンドリング'] },
+    ];
+
+    const CATEGORIES = ['すべて', 'PAD基本', 'ブラウザ自動化', 'Excel連携', 'プログラミング基礎'];
+    let activeCategory = 'すべて';
+    let searchKeyword = '';
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function termSlug(term) {
+      return 'term-' + term.replace(/[^a-zA-Z0-9]/g, '_');
+    }
+
+    function renderTabs() {
+      document.getElementById('catTabs').innerHTML = CATEGORIES.map(c => `
+        <button class="cat-tab ${activeCategory === c ? 'active' : ''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>
+      `).join('');
+      document.querySelectorAll('.cat-tab').forEach(btn => {
+        btn.onclick = () => { activeCategory = btn.dataset.cat; renderTabs(); renderTerms(); };
+      });
+    }
+
+    function renderTerms() {
+      const kw = searchKeyword.trim().toLowerCase();
+      const filtered = GLOSSARY.filter(t => {
+        if (activeCategory !== 'すべて' && t.category !== activeCategory) return false;
+        if (!kw) return true;
+        return (t.term.toLowerCase().includes(kw)
+             || t.altName.toLowerCase().includes(kw)
+             || t.description.toLowerCase().includes(kw));
+      });
+      const list = document.getElementById('termList');
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="card"><div class="card-body"><div class="empty-msg">該当する用語が見つかりません。検索キーワードやカテゴリを変えてみてください。</div></div></div>';
+        return;
+      }
+      list.innerHTML = filtered.map(t => `
+        <div class="term-card" id="${termSlug(t.term)}">
+          <div class="term-head">
+            <span class="term-name">${escapeHtml(t.term)}</span>
+            <span class="term-alt">（${escapeHtml(t.altName)}）</span>
+            <span class="cat-badge">${escapeHtml(t.category)}</span>
+          </div>
+          <div class="term-desc">${escapeHtml(t.description)}</div>
+          <div class="term-example">例：${escapeHtml(t.example)}</div>
+          ${t.related.length ? `<div class="term-related">関連：${t.related.map(r => `<span class="related-chip" data-jump="${escapeHtml(r)}">${escapeHtml(r)}</span>`).join('')}</div>` : ''}
+        </div>
+      `).join('');
+      document.querySelectorAll('.related-chip').forEach(chip => {
+        chip.onclick = () => {
+          const target = document.getElementById(termSlug(chip.dataset.jump));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            target.classList.add('highlight');
+            setTimeout(() => target.classList.remove('highlight'), 1200);
+          } else {
+            activeCategory = 'すべて';
+            searchKeyword = chip.dataset.jump;
+            document.getElementById('searchInput').value = searchKeyword;
+            renderTabs(); renderTerms();
+          }
+        };
+      });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', e => {
+      searchKeyword = e.target.value;
+      renderTerms();
+    });
+
+    renderTabs();
+    renderTerms();
+  </script>
+</body>
+</html>

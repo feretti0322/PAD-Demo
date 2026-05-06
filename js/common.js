@@ -9,6 +9,38 @@ function checkLogin() {
   }
 }
 
+// 進捗バッジ機能
+function getProgress() {
+  return JSON.parse(sessionStorage.getItem('padProgress') || '[]');
+}
+function markCompleted(lessonNumber) {
+  const progress = getProgress();
+  if (!progress.includes(lessonNumber)) {
+    progress.push(lessonNumber);
+    sessionStorage.setItem('padProgress', JSON.stringify(progress));
+  }
+}
+function isCompleted(lessonNumber) {
+  return getProgress().includes(lessonNumber);
+}
+function renderProgressBadge(lessonNumber) {
+  return isCompleted(lessonNumber)
+    ? '<span class="badge-done">✅ 受講済み</span>'
+    : '<span class="badge-todo">未受講</span>';
+}
+
+// 学習ページIDと研修回番号の対応
+const LESSON_MAP = {
+  'pad-webdriver': 1,
+  'pad-scraping': 5,
+  'pad-datatable': 5,
+  'pad-url-navigate': 5,
+  'pad-loop': 6,
+  'pad-condition': 6,
+  'pad-error': 6,
+  'pad-subflow': 6,
+};
+
 // サイドバー共通HTML生成
 function renderSidebar(activePage) {
   const demoPages = [
@@ -16,6 +48,12 @@ function renderSidebar(activePage) {
     { id: 'customer', icon: '🏢', label: '得意先一覧', href: 'customer.html' },
     { id: 'sales-input', icon: '✏️', label: '売上入力', href: 'sales-input.html' },
     { id: 'sales-list', icon: '📋', label: '売上一覧', href: 'sales-list.html' },
+  ];
+
+  const referencePages = [
+    { id: 'case-study', icon: '📚', label: '事例集', href: 'case-study.html' },
+    { id: 'glossary',   icon: '📖', label: '用語集', href: 'glossary.html' },
+    { id: 'cheatsheet', icon: '⚡', label: 'チートシート', href: 'cheatsheet.html' },
   ];
 
   const learnSections = [
@@ -48,6 +86,7 @@ function renderSidebar(activePage) {
         { id: 'pad-loop', icon: '🔁', label: 'ループを学ぼう', href: 'pad-loop.html' },
         { id: 'pad-condition', icon: '🔀', label: '条件分岐を学ぼう', href: 'pad-condition.html' },
         { id: 'pad-error', icon: '🛡️', label: 'エラーハンドリングを学ぼう', href: 'pad-error.html' },
+        { id: 'pad-subflow', icon: '🔧', label: 'サブフローを学ぼう', href: 'pad-subflow.html' },
       ]
     },
   ];
@@ -68,12 +107,16 @@ function renderSidebar(activePage) {
           ${section.name}
         </button>
         <div class="nav-collapse-content ${isOpen ? 'open' : ''}">
-          ${section.items.map(p => `
+          ${section.items.map(p => {
+            const lesson = LESSON_MAP[p.id];
+            const badge = (lesson !== undefined && isCompleted(lesson)) ? '<span class="sidebar-badge">✓</span>' : '';
+            return `
             <a href="${p.href}" class="nav-item nav-sub-item ${activePage === p.id ? 'active' : ''}">
               <span class="nav-icon">${p.icon}</span>
-              ${p.label}
+              ${p.label}${badge}
             </a>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </div>
     `;
@@ -104,6 +147,8 @@ function renderSidebar(activePage) {
         </a>
         <div class="nav-section" style="margin-top:8px;">学習</div>
         ${learnSections.map(makeCollapsibleSection).join('')}
+        <div class="nav-section" style="margin-top:8px;">リファレンス</div>
+        ${makeNavItems(referencePages)}
       </nav>
       <div class="sidebar-footer">
         ログイン中: <strong>${sessionStorage.getItem('userName') || 'user'}</strong>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社内フロー事例集 | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .learn-hero {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0d7377 100%);
+      border-radius: 12px; padding: 36px; color: #fff; margin-bottom: 24px;
+    }
+    .learn-hero h2 { font-size: 24px; font-weight: 700; margin: 0 0 12px; }
+    .learn-hero p { font-size: 15px; line-height: 1.9; margin: 0; opacity: 0.95; }
+
+    .point-block { background: #f4f6f9; border-left: 4px solid #2c7be5; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 14px; line-height: 1.9; color: #333; margin-top: 16px; }
+    .point-block strong { color: #1a3a5c; }
+    .summary-card { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-left: 4px solid #00b274; border-radius: 8px; padding: 18px 22px; margin-top: 20px; }
+    .summary-card h4 { color: #065f46; margin: 0 0 10px; font-size: 15px; }
+    .summary-card ol { margin: 0; padding-left: 22px; font-size: 14px; line-height: 2; color: #333; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-row { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+    .form-row label { font-weight: 700; color: #1a3a5c; }
+    .form-row input[type=text], .form-row input[type=number], .form-row select, .form-row textarea {
+      padding: 8px 10px; border: 2px solid #e0e6ed; border-radius: 6px; font-size: 13px; font-family: inherit; box-sizing: border-box; width: 100%;
+    }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus { outline: none; border-color: #2c7be5; }
+    .form-row.full { grid-column: 1 / -1; }
+    .radio-group { display: flex; gap: 12px; }
+    .radio-group label { font-weight: normal; display: flex; align-items: center; gap: 4px; }
+    .err-msg { color: #b91c1c; font-size: 13px; margin-top: 8px; }
+
+    .filter-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; }
+    .filter-grid > div { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #6b7280; }
+    .filter-grid input, .filter-grid select { padding: 8px 10px; border: 2px solid #e0e6ed; border-radius: 6px; font-size: 13px; box-sizing: border-box; width: 100%; }
+    .level-checks { display: flex; gap: 8px; padding-top: 4px; }
+    .level-checks label { font-size: 12px; color: #333; display: flex; align-items: center; gap: 3px; }
+
+    .case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-top: 14px; }
+    .case-card { background: #fff; border: 1px solid #e0e6ed; border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+    .case-card .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .case-card .level-beg { background: #d1fae5; color: #065f46; }
+    .case-card .level-int { background: #dbeafe; color: #1e40af; }
+    .case-card .level-adv { background: #fed7aa; color: #9a3412; }
+    .case-card .cat { background: #f4f6f9; color: #1a3a5c; }
+    .case-card .badges span { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    .case-card h4 { margin: 0; font-size: 15px; color: #1a3a5c; line-height: 1.5; }
+    .case-card .summary { font-size: 13px; color: #555; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+    .case-card .actions { font-size: 11px; color: #6b7280; line-height: 1.5; }
+    .case-card .footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #555; }
+    .case-card .like-btn { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 4px 10px; border-radius: 14px; cursor: pointer; font-size: 12px; }
+    .case-card .like-btn:hover { background: #fee2e2; }
+    .case-card .author { font-size: 11px; color: #6b7280; }
+    .case-card .saved { font-weight: 700; color: #065f46; }
+    .empty-msg { text-align: center; color: #9ca3af; padding: 30px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">📚 社内フロー事例集</div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">user</span></div>
+      </header>
+      <main class="page-content">
+
+        <section class="learn-hero">
+          <h2>📚 社内フロー事例集 ― 同僚の自動化を真似て学ぼう</h2>
+          <p>自分の業務にPADを応用するとき、ゼロから設計するより<strong>「他の人がどう自動化したか」を真似るほうが圧倒的に早い</strong>。このページは全国200名の受講者がフロー事例を投稿し、互いに参照するための共有スペースです。気に入った事例には「いいね」を押し、コメントで質問しましょう。</p>
+        </section>
+
+        <div class="card">
+          <div class="card-header"><h3>✏️ 事例を投稿する</h3></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-row full">
+                <label>タイトル <span style="color:#b91c1c;">*</span></label>
+                <input type="text" id="fTitle" placeholder="例：マッハバイト応募者を毎朝Excelに集計">
+              </div>
+              <div class="form-row">
+                <label>業務カテゴリ <span style="color:#b91c1c;">*</span></label>
+                <select id="fCategory">
+                  <option value="">選択してください</option>
+                  <option>スタッフ管理</option>
+                  <option>求人媒体運用</option>
+                  <option>売上集計</option>
+                  <option>Excel自動化</option>
+                  <option>メール処理</option>
+                  <option>その他</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>難易度 <span style="color:#b91c1c;">*</span></label>
+                <div class="radio-group">
+                  <label><input type="radio" name="fLevel" value="初級" checked>初級</label>
+                  <label><input type="radio" name="fLevel" value="中級">中級</label>
+                  <label><input type="radio" name="fLevel" value="上級">上級</label>
+                </div>
+              </div>
+              <div class="form-row">
+                <label>節約時間（時間/月） <span style="color:#b91c1c;">*</span></label>
+                <input type="number" id="fSaved" min="0" step="1" placeholder="例：10">
+              </div>
+              <div class="form-row">
+                <label>使用したPADアクション（任意・カンマ区切り）</label>
+                <input type="text" id="fActions" placeholder="例：Webページを開く, スクレイピング, FOR EACH">
+              </div>
+              <div class="form-row full">
+                <label>概要 <span style="color:#b91c1c;">*</span></label>
+                <textarea id="fSummary" rows="4" placeholder="3〜5行でフローの内容を説明してください"></textarea>
+              </div>
+            </div>
+            <div class="err-msg" id="formErr" style="display:none;"></div>
+            <div style="margin-top:14px;">
+              <button class="btn btn-primary" id="btnSubmit">投稿する</button>
+              <button class="btn btn-outline" id="btnReset">クリア</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>🔍 事例を探す</h3></div>
+          <div class="card-body">
+            <div class="filter-grid">
+              <div>
+                <label>キーワード検索</label>
+                <input type="text" id="fSearch" placeholder="タイトル・概要で絞り込み">
+              </div>
+              <div>
+                <label>カテゴリ</label>
+                <select id="fFilterCat">
+                  <option value="">すべて</option>
+                  <option>スタッフ管理</option>
+                  <option>求人媒体運用</option>
+                  <option>売上集計</option>
+                  <option>Excel自動化</option>
+                  <option>メール処理</option>
+                  <option>その他</option>
+                </select>
+              </div>
+              <div>
+                <label>難易度</label>
+                <div class="level-checks">
+                  <label><input type="checkbox" class="lvCheck" value="初級" checked>初級</label>
+                  <label><input type="checkbox" class="lvCheck" value="中級" checked>中級</label>
+                  <label><input type="checkbox" class="lvCheck" value="上級" checked>上級</label>
+                </div>
+              </div>
+              <div>
+                <label>ソート</label>
+                <select id="fSort">
+                  <option value="new">新着順</option>
+                  <option value="like">いいね順</option>
+                  <option value="saved">節約時間順</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>💡 投稿された事例（<span id="caseCount">0</span>件）</h3></div>
+          <div class="card-body">
+            <div id="caseList"></div>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <h4>📝 3行まとめ</h4>
+          <ol>
+            <li>事例投稿は「同僚の自動化アイデアを真似る」ための共有スペース。ゼロから設計するより圧倒的に早く学べる。</li>
+            <li>投稿時はカテゴリと難易度を必ず付け、後から検索しやすくする。節約時間を書くと社内の効果集計に貢献できる。</li>
+            <li>いいねが多い事例は社内アンバサダー候補。コメントで質問・改善提案を出し合う文化を作ろう。</li>
+          </ol>
+        </div>
+
+      </main>
+      <footer class="app-footer">© 2025 PAD練習サイト</footer>
+    </div>
+  </div>
+  <script src="js/common.js?v=2"></script>
+  <script>
+    checkLogin();
+    document.getElementById('sidebarContainer').innerHTML = renderSidebar('case-study');
+    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
+
+    const CASE_STUDIES_INITIAL = [
+      { id: 1, title: '派遣スタッフ700名分のプロフィールシートを15分で出力', category: 'スタッフ管理', level: '上級', savedHours: 40,
+        summary: 'Excelテンプレートをコピーし、社内サイトからスタッフ情報をスクレイピングして個別ファイルに書き込み。FOR EACHで全員分を自動処理。',
+        actions: 'WebDriver起動, ログイン, スクレイピング, FOR EACH, Excel書き込み',
+        likes: 42, author: '東京本社・人事部', postedAt: Date.now() - 1000 * 60 * 60 * 24 * 2 },
+      { id: 2, title: '求人媒体5サイトの応募者を毎朝集計してSlack通知', category: '求人媒体運用', level: '中級', savedHours: 20,
+        summary: '5つの媒体管理画面に順次ログインして応募者数を取得し、Excelに集計後、Slack Webhookで支社別ダッシュボードに投稿。',
+        actions: 'ループ, スクレイピング, HTTP送信',
+        likes: 28, author: '大阪支社・営業', postedAt: Date.now() - 1000 * 60 * 60 * 24 * 5 },
+      { id: 3, title: '売上日報を3クリックで作成（テンプレ自動コピー）', category: 'Excel自動化', level: '初級', savedHours: 8,
+        summary: '日付フォルダを自動作成し、テンプレートExcelをコピー＆別名保存。ファイルパスは「日付＋担当者名」で自動生成。',
+        actions: 'フォルダ作成, ファイルコピー, 日付取得',
+        likes: 35, author: '名古屋支社・営業', postedAt: Date.now() - 1000 * 60 * 60 * 24 * 1 },
+      { id: 4, title: '受信メールから添付Excelを自動分類して保存', category: 'メール処理', level: '中級', savedHours: 12,
+        summary: 'Outlookの受信トレイを巡回し、件名のキーワードでフォルダ振り分け。添付ファイルを取引先別フォルダに自動保存。',
+        actions: 'Outlook, ファイル振り分け, 条件分岐',
+        likes: 18, author: '福岡支社・経理', postedAt: Date.now() - 1000 * 60 * 60 * 6 },
+      { id: 5, title: '月次売上を支社別にピボット集計してメール送付', category: '売上集計', level: '上級', savedHours: 15,
+        summary: '全支社の売上Excelを集約し、ピボットテーブルで集計。グラフを自動生成して経営会議資料に貼り付け、関係者にメール送信。',
+        actions: 'Excel集約, ピボット, グラフ生成, メール送信',
+        likes: 31, author: '東京本社・経営企画', postedAt: Date.now() - 1000 * 60 * 60 * 24 * 7 },
+      { id: 6, title: '初めてのPAD：Webページを開いてスクショを取るだけ', category: 'その他', level: '初級', savedHours: 1,
+        summary: '研修第1回で作った最初のフロー。指定URLを開き、ページ全体のスクリーンショットを撮影してデスクトップに保存するだけのシンプル版。',
+        actions: 'Webページを開く, スクリーンショット',
+        likes: 24, author: '札幌支社・新人', postedAt: Date.now() - 1000 * 60 * 30 },
+    ];
+
+    function loadCases() {
+      const stored = sessionStorage.getItem('caseStudies');
+      if (stored) return JSON.parse(stored);
+      saveCases(CASE_STUDIES_INITIAL);
+      return CASE_STUDIES_INITIAL.slice();
+    }
+    function saveCases(arr) { sessionStorage.setItem('caseStudies', JSON.stringify(arr)); }
+    let cases = loadCases();
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function formatRelativeTime(ts) {
+      const diff = Date.now() - ts;
+      const m = Math.floor(diff / 60000);
+      if (m < 1) return 'たった今';
+      if (m < 60) return m + '分前';
+      const h = Math.floor(m / 60);
+      if (h < 24) return h + '時間前';
+      const d = Math.floor(h / 24);
+      if (d === 1) return '昨日';
+      if (d < 7) return d + '日前';
+      const dt = new Date(ts);
+      return `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}`;
+    }
+
+    function levelClass(level) {
+      return level === '初級' ? 'level-beg' : (level === '中級' ? 'level-int' : 'level-adv');
+    }
+
+    function render() {
+      const kw = document.getElementById('fSearch').value.trim().toLowerCase();
+      const cat = document.getElementById('fFilterCat').value;
+      const sort = document.getElementById('fSort').value;
+      const levels = Array.from(document.querySelectorAll('.lvCheck:checked')).map(c => c.value);
+
+      let filtered = cases.filter(c => {
+        if (cat && c.category !== cat) return false;
+        if (!levels.includes(c.level)) return false;
+        if (kw && !(c.title.toLowerCase().includes(kw) || c.summary.toLowerCase().includes(kw))) return false;
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        if (sort === 'like') return b.likes - a.likes;
+        if (sort === 'saved') return b.savedHours - a.savedHours;
+        return b.postedAt - a.postedAt;
+      });
+
+      document.getElementById('caseCount').textContent = filtered.length;
+
+      const list = document.getElementById('caseList');
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-msg">該当する事例が見つかりません。フィルタ条件を変えてみてください。</div>';
+        return;
+      }
+
+      list.innerHTML = '<div class="case-grid">' + filtered.map(c => `
+        <div class="case-card">
+          <div class="badges">
+            <span class="${levelClass(c.level)}">${escapeHtml(c.level)}</span>
+            <span class="cat">${escapeHtml(c.category)}</span>
+          </div>
+          <h4>${escapeHtml(c.title)}</h4>
+          <div class="summary">${escapeHtml(c.summary)}</div>
+          ${c.actions ? `<div class="actions">🔧 ${escapeHtml(c.actions)}</div>` : ''}
+          <div class="footer">
+            <span class="saved">⏱️ 月${c.savedHours}時間</span>
+            <button class="like-btn" data-id="${c.id}">❤️ ${c.likes}</button>
+          </div>
+          <div class="author">👤 ${escapeHtml(c.author)} ・ ${formatRelativeTime(c.postedAt)}</div>
+        </div>
+      `).join('') + '</div>';
+
+      document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.onclick = () => {
+          const id = parseInt(btn.dataset.id, 10);
+          const target = cases.find(c => c.id === id);
+          if (target) { target.likes += 1; saveCases(cases); render(); }
+        };
+      });
+    }
+
+    function submitCase() {
+      const title = document.getElementById('fTitle').value.trim();
+      const category = document.getElementById('fCategory').value;
+      const level = document.querySelector('input[name=fLevel]:checked').value;
+      const savedRaw = document.getElementById('fSaved').value;
+      const summary = document.getElementById('fSummary').value.trim();
+      const actions = document.getElementById('fActions').value.trim();
+      const errEl = document.getElementById('formErr');
+
+      const errs = [];
+      if (!title) errs.push('タイトル');
+      if (!category) errs.push('カテゴリ');
+      if (savedRaw === '' || isNaN(parseInt(savedRaw, 10)) || parseInt(savedRaw, 10) < 0) errs.push('節約時間（0以上の数値）');
+      if (!summary) errs.push('概要');
+      if (errs.length) {
+        errEl.textContent = '入力エラー：' + errs.join(' / ') + ' を確認してください。';
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+
+      const newCase = {
+        id: Date.now(),
+        title, category, level,
+        savedHours: parseInt(savedRaw, 10),
+        summary, actions,
+        likes: 0,
+        author: (sessionStorage.getItem('userName') || 'user') + '・自分',
+        postedAt: Date.now(),
+      };
+      cases.unshift(newCase);
+      saveCases(cases);
+      resetForm();
+      render();
+    }
+
+    function resetForm() {
+      document.getElementById('fTitle').value = '';
+      document.getElementById('fCategory').value = '';
+      document.querySelector('input[name=fLevel][value=初級]').checked = true;
+      document.getElementById('fSaved').value = '';
+      document.getElementById('fActions').value = '';
+      document.getElementById('fSummary').value = '';
+      document.getElementById('formErr').style.display = 'none';
+    }
+
+    document.getElementById('btnSubmit').onclick = submitCase;
+    document.getElementById('btnReset').onclick = resetForm;
+    ['fSearch','fFilterCat','fSort'].forEach(id => document.getElementById(id).addEventListener('input', render));
+    document.querySelectorAll('.lvCheck').forEach(c => c.addEventListener('change', render));
+
+    render();
+  </script>
+</body>
+</html>
