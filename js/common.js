@@ -1,32 +1,37 @@
 // ===================================
-// 共通処理
+// 共通処理（Supabase 対応版）
+// ===================================
+// 前提：HTML側でこの順序でスクリプトを読み込むこと
+//   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+//   <script src="js/env.js"></script>
+//   <script src="js/supabase-client.js"></script>
+//   <script src="js/auth.js"></script>
+//   <script src="js/common.js?v=3"></script>
 // ===================================
 
-// ログインチェック
-function checkLogin() {
-  if (!sessionStorage.getItem('loggedIn')) {
-    window.location.href = '../index.html';
+// 未ログインなら index.html にリダイレクト
+async function checkLogin() {
+  if (!window.supabaseClient) {
+    console.error('Supabaseクライアントが未初期化です');
+    window.location.href = 'index.html';
+    return null;
   }
+  const { data: { user } } = await window.supabaseClient.auth.getUser();
+  if (!user) {
+    window.location.href = 'index.html';
+    return null;
+  }
+  return user;
 }
 
-// 進捗バッジ機能
+// 進捗バッジ取得（旧API互換）
+// bootstrapPage が事前に window.__completedLessons を埋めることを前提
 function getProgress() {
-  return JSON.parse(sessionStorage.getItem('padProgress') || '[]');
-}
-function markCompleted(lessonNumber) {
-  const progress = getProgress();
-  if (!progress.includes(lessonNumber)) {
-    progress.push(lessonNumber);
-    sessionStorage.setItem('padProgress', JSON.stringify(progress));
-  }
+  const set = window.__completedLessons || new Set();
+  return Array.from(set);
 }
 function isCompleted(lessonNumber) {
-  return getProgress().includes(lessonNumber);
-}
-function renderProgressBadge(lessonNumber) {
-  return isCompleted(lessonNumber)
-    ? '<span class="badge-done">✅ 受講済み</span>'
-    : '<span class="badge-todo">未受講</span>';
+  return (window.__completedLessons || new Set()).has(lessonNumber);
 }
 
 // 学習ページIDと研修回番号の対応
@@ -42,7 +47,13 @@ const LESSON_MAP = {
 };
 
 // サイドバー共通HTML生成
-function renderSidebar(activePage) {
+// opts = { userName, isAdmin, completedLessons (Set) }
+function renderSidebar(activePage, opts) {
+  opts = opts || {};
+  const userName = opts.userName || '...';
+  const isAdminFlag = !!opts.isAdmin;
+  const completedLessons = opts.completedLessons || new Set();
+
   const demoPages = [
     { id: 'dashboard', icon: '📊', label: 'ダッシュボード', href: 'dashboard.html' },
     { id: 'customer', icon: '🏢', label: '得意先一覧', href: 'customer.html' },
@@ -109,7 +120,7 @@ function renderSidebar(activePage) {
         <div class="nav-collapse-content ${isOpen ? 'open' : ''}">
           ${section.items.map(p => {
             const lesson = LESSON_MAP[p.id];
-            const badge = (lesson !== undefined && isCompleted(lesson)) ? '<span class="sidebar-badge">✓</span>' : '';
+            const badge = (lesson !== undefined && completedLessons.has(lesson)) ? '<span class="sidebar-badge">✓</span>' : '';
             return `
             <a href="${p.href}" class="nav-item nav-sub-item ${activePage === p.id ? 'active' : ''}">
               <span class="nav-icon">${p.icon}</span>
@@ -121,6 +132,14 @@ function renderSidebar(activePage) {
       </div>
     `;
   };
+
+  const adminLink = isAdminFlag ? `
+    <div class="nav-section" style="margin-top:8px;">管理</div>
+    <a href="admin.html" class="nav-item ${activePage === 'admin' ? 'active' : ''}">
+      <span class="nav-icon">🛡️</span>
+      管理者ダッシュボード
+    </a>
+  ` : '';
 
   return `
     <aside class="sidebar">
@@ -149,14 +168,47 @@ function renderSidebar(activePage) {
         ${learnSections.map(makeCollapsibleSection).join('')}
         <div class="nav-section" style="margin-top:8px;">リファレンス</div>
         ${makeNavItems(referencePages)}
+        ${adminLink}
       </nav>
       <div class="sidebar-footer">
-        ログイン中: <strong>${sessionStorage.getItem('userName') || 'user'}</strong>
+        ログイン中: <strong>${userName}</strong>${isAdminFlag ? ' <span style="color:#ffd700;">👑</span>' : ''}
         <br>
-        <a href="index.html" style="color: rgba(255,255,255,0.5); font-size:11px;" onclick="sessionStorage.clear()">ログアウト</a>
+        <a href="javascript:void(0)" style="color: rgba(255,255,255,0.5); font-size:11px;" onclick="window.auth.signOut()">ログアウト</a>
       </div>
     </aside>
   `;
+}
+
+// ページ初期化：認証チェック → プロフィール/管理者/進捗を取得 → サイドバー＆トップバー更新
+async function bootstrapPage(activePage) {
+  const user = await checkLogin();
+  if (!user) return null;
+
+  const [profile, adminFlag, progressRes] = await Promise.all([
+    window.auth.getCurrentProfile(),
+    window.auth.isAdmin(),
+    window.supabaseClient.from('lesson_progress').select('lesson_number')
+  ]);
+
+  const completedLessons = new Set((progressRes.data || []).map(p => p.lesson_number));
+  window.__completedLessons = completedLessons;
+  // 旧APIユーザー向け：window.dispatchEvent でロード完了を通知
+  window.dispatchEvent(new CustomEvent('progress-loaded', { detail: { completedLessons } }));
+  const userName = profile?.display_name || user.email || 'user';
+
+  const sidebarEl = document.getElementById('sidebarContainer');
+  if (sidebarEl) sidebarEl.innerHTML = renderSidebar(activePage, { userName, isAdmin: adminFlag, completedLessons });
+
+  const topbarEl = document.getElementById('topbarUser');
+  if (topbarEl) topbarEl.textContent = userName + (adminFlag ? ' 👑' : '');
+
+  // dashboard.html などで使われる #userName / #userAvatar も上書き
+  const userNameEl = document.getElementById('userName');
+  if (userNameEl) userNameEl.textContent = userName;
+  const userAvatarEl = document.getElementById('userAvatar');
+  if (userAvatarEl) userAvatarEl.textContent = (userName.charAt(0) || 'U').toUpperCase();
+
+  return { user, profile, isAdmin: adminFlag, completedLessons };
 }
 
 // スタッフ検索ポップアップを開く
