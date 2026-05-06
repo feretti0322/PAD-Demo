@@ -181,11 +181,13 @@ END</div>
       <footer class="app-footer">© 2025 PAD練習サイト</footer>
     </div>
   </div>
-  <script src="js/common.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js?v=3"></script>
   <script>
-    checkLogin();
-    document.getElementById('sidebarContainer').innerHTML = renderSidebar('pad-condition');
-    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
+    bootstrapPage('pad-condition');
 
     // IF シミュレーター
     document.getElementById('btnJudge').onclick = () => {

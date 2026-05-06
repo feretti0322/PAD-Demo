@@ -30,6 +30,7 @@
     .radio-group { display: flex; gap: 12px; }
     .radio-group label { font-weight: normal; display: flex; align-items: center; gap: 4px; }
     .err-msg { color: #b91c1c; font-size: 13px; margin-top: 8px; }
+    .ok-msg { color: #065f46; font-size: 13px; margin-top: 8px; }
 
     .filter-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; }
     .filter-grid > div { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #6b7280; }
@@ -38,7 +39,7 @@
     .level-checks label { font-size: 12px; color: #333; display: flex; align-items: center; gap: 3px; }
 
     .case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-top: 14px; }
-    .case-card { background: #fff; border: 1px solid #e0e6ed; border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+    .case-card { background: #fff; border: 1px solid #e0e6ed; border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; position: relative; }
     .case-card .badges { display: flex; gap: 6px; flex-wrap: wrap; }
     .case-card .level-beg { background: #d1fae5; color: #065f46; }
     .case-card .level-int { background: #dbeafe; color: #1e40af; }
@@ -51,9 +52,13 @@
     .case-card .footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #555; }
     .case-card .like-btn { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 4px 10px; border-radius: 14px; cursor: pointer; font-size: 12px; }
     .case-card .like-btn:hover { background: #fee2e2; }
+    .case-card .like-btn.liked { background: #fecaca; font-weight: 700; }
     .case-card .author { font-size: 11px; color: #6b7280; }
     .case-card .saved { font-weight: 700; color: #065f46; }
+    .case-card .delete-btn { position: absolute; top: 10px; right: 10px; background: #fff; border: 1px solid #fecaca; color: #b91c1c; padding: 2px 8px; border-radius: 12px; cursor: pointer; font-size: 11px; }
+    .case-card .delete-btn:hover { background: #fee2e2; }
     .empty-msg { text-align: center; color: #9ca3af; padding: 30px; font-size: 14px; }
+    .loading-msg { text-align: center; color: #6b7280; padding: 20px; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -62,7 +67,7 @@
     <div class="main-content">
       <header class="topbar">
         <div class="topbar-title">📚 社内フロー事例集</div>
-        <div class="topbar-user"><span>👤</span><span id="topbarUser">user</span></div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">...</span></div>
       </header>
       <main class="page-content">
 
@@ -77,7 +82,7 @@
             <div class="form-grid">
               <div class="form-row full">
                 <label>タイトル <span style="color:#b91c1c;">*</span></label>
-                <input type="text" id="fTitle" placeholder="例：マッハバイト応募者を毎朝Excelに集計">
+                <input type="text" id="fTitle" placeholder="例：マッハバイト応募者を毎朝Excelに集計" maxlength="200">
               </div>
               <div class="form-row">
                 <label>業務カテゴリ <span style="color:#b91c1c;">*</span></label>
@@ -101,7 +106,7 @@
               </div>
               <div class="form-row">
                 <label>節約時間（時間/月） <span style="color:#b91c1c;">*</span></label>
-                <input type="number" id="fSaved" min="0" step="1" placeholder="例：10">
+                <input type="number" id="fSaved" min="0" max="1000" step="1" placeholder="例：10">
               </div>
               <div class="form-row">
                 <label>使用したPADアクション（任意・カンマ区切り）</label>
@@ -109,10 +114,11 @@
               </div>
               <div class="form-row full">
                 <label>概要 <span style="color:#b91c1c;">*</span></label>
-                <textarea id="fSummary" rows="4" placeholder="3〜5行でフローの内容を説明してください"></textarea>
+                <textarea id="fSummary" rows="4" placeholder="3〜5行でフローの内容を説明してください" maxlength="2000"></textarea>
               </div>
             </div>
             <div class="err-msg" id="formErr" style="display:none;"></div>
+            <div class="ok-msg" id="formOk" style="display:none;">投稿しました</div>
             <div style="margin-top:14px;">
               <button class="btn btn-primary" id="btnSubmit">投稿する</button>
               <button class="btn btn-outline" id="btnReset">クリア</button>
@@ -163,7 +169,7 @@
         <div class="card">
           <div class="card-header"><h3>💡 投稿された事例（<span id="caseCount">0</span>件）</h3></div>
           <div class="card-body">
-            <div id="caseList"></div>
+            <div id="caseList"><div class="loading-msg">読み込み中...</div></div>
           </div>
         </div>
 
@@ -180,54 +186,25 @@
       <footer class="app-footer">© 2025 PAD練習サイト</footer>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/common.js?v=2"></script>
   <script>
-    checkLogin();
-    document.getElementById('sidebarContainer').innerHTML = renderSidebar('case-study');
-    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
-
-    const CASE_STUDIES_INITIAL = [
-      { id: 1, title: '派遣スタッフ700名分のプロフィールシートを15分で出力', category: 'スタッフ管理', level: '上級', savedHours: 40,
-        summary: 'Excelテンプレートをコピーし、社内サイトからスタッフ情報をスクレイピングして個別ファイルに書き込み。FOR EACHで全員分を自動処理。',
-        actions: 'WebDriver起動, ログイン, スクレイピング, FOR EACH, Excel書き込み',
-        likes: 42, author: '東京本社・人事部', postedAt: Date.now() - 1000 * 60 * 60 * 24 * 2 },
-      { id: 2, title: '求人媒体5サイトの応募者を毎朝集計してSlack通知', category: '求人媒体運用', level: '中級', savedHours: 20,
-        summary: '5つの媒体管理画面に順次ログインして応募者数を取得し、Excelに集計後、Slack Webhookで支社別ダッシュボードに投稿。',
-        actions: 'ループ, スクレイピング, HTTP送信',
-        likes: 28, author: '大阪支社・営業', postedAt: Date.now() - 1000 * 60 * 60 * 24 * 5 },
-      { id: 3, title: '売上日報を3クリックで作成（テンプレ自動コピー）', category: 'Excel自動化', level: '初級', savedHours: 8,
-        summary: '日付フォルダを自動作成し、テンプレートExcelをコピー＆別名保存。ファイルパスは「日付＋担当者名」で自動生成。',
-        actions: 'フォルダ作成, ファイルコピー, 日付取得',
-        likes: 35, author: '名古屋支社・営業', postedAt: Date.now() - 1000 * 60 * 60 * 24 * 1 },
-      { id: 4, title: '受信メールから添付Excelを自動分類して保存', category: 'メール処理', level: '中級', savedHours: 12,
-        summary: 'Outlookの受信トレイを巡回し、件名のキーワードでフォルダ振り分け。添付ファイルを取引先別フォルダに自動保存。',
-        actions: 'Outlook, ファイル振り分け, 条件分岐',
-        likes: 18, author: '福岡支社・経理', postedAt: Date.now() - 1000 * 60 * 60 * 6 },
-      { id: 5, title: '月次売上を支社別にピボット集計してメール送付', category: '売上集計', level: '上級', savedHours: 15,
-        summary: '全支社の売上Excelを集約し、ピボットテーブルで集計。グラフを自動生成して経営会議資料に貼り付け、関係者にメール送信。',
-        actions: 'Excel集約, ピボット, グラフ生成, メール送信',
-        likes: 31, author: '東京本社・経営企画', postedAt: Date.now() - 1000 * 60 * 60 * 24 * 7 },
-      { id: 6, title: '初めてのPAD：Webページを開いてスクショを取るだけ', category: 'その他', level: '初級', savedHours: 1,
-        summary: '研修第1回で作った最初のフロー。指定URLを開き、ページ全体のスクリーンショットを撮影してデスクトップに保存するだけのシンプル版。',
-        actions: 'Webページを開く, スクリーンショット',
-        likes: 24, author: '札幌支社・新人', postedAt: Date.now() - 1000 * 60 * 30 },
-    ];
-
-    function loadCases() {
-      const stored = sessionStorage.getItem('caseStudies');
-      if (stored) return JSON.parse(stored);
-      saveCases(CASE_STUDIES_INITIAL);
-      return CASE_STUDIES_INITIAL.slice();
-    }
-    function saveCases(arr) { sessionStorage.setItem('caseStudies', JSON.stringify(arr)); }
-    let cases = loadCases();
+    let currentUser = null;
+    let isAdminFlag = false;
+    let cases = [];
+    let likeMap = {};   // { case_study_id: count }
+    let likedSet = new Set(); // case_study_id user has liked
 
     function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
     function formatRelativeTime(ts) {
-      const diff = Date.now() - ts;
+      const diff = Date.now() - new Date(ts).getTime();
       const m = Math.floor(diff / 60000);
       if (m < 1) return 'たった今';
       if (m < 60) return m + '分前';
@@ -244,6 +221,32 @@
       return level === '初級' ? 'level-beg' : (level === '中級' ? 'level-int' : 'level-adv');
     }
 
+    async function loadAll() {
+      const { data: caseData, error: caseErr } = await window.supabaseClient
+        .from('case_studies')
+        .select('id, user_id, title, category, level, saved_hours, summary, actions, created_at, profiles(display_name)')
+        .order('created_at', { ascending: false });
+      if (caseErr) {
+        document.getElementById('caseList').innerHTML = '<div class="empty-msg">事例の取得に失敗しました：' + escapeHtml(caseErr.message) + '</div>';
+        return;
+      }
+      cases = caseData || [];
+
+      const { data: likeData, error: likeErr } = await window.supabaseClient
+        .from('case_likes')
+        .select('case_study_id, user_id');
+      if (likeErr) console.warn('いいね取得失敗', likeErr);
+
+      likeMap = {};
+      likedSet = new Set();
+      (likeData || []).forEach(l => {
+        likeMap[l.case_study_id] = (likeMap[l.case_study_id] || 0) + 1;
+        if (l.user_id === currentUser.id) likedSet.add(l.case_study_id);
+      });
+
+      render();
+    }
+
     function render() {
       const kw = document.getElementById('fSearch').value.trim().toLowerCase();
       const cat = document.getElementById('fFilterCat').value;
@@ -258,21 +261,27 @@
       });
 
       filtered.sort((a, b) => {
-        if (sort === 'like') return b.likes - a.likes;
-        if (sort === 'saved') return b.savedHours - a.savedHours;
-        return b.postedAt - a.postedAt;
+        if (sort === 'like') return (likeMap[b.id] || 0) - (likeMap[a.id] || 0);
+        if (sort === 'saved') return b.saved_hours - a.saved_hours;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
 
       document.getElementById('caseCount').textContent = filtered.length;
 
       const list = document.getElementById('caseList');
       if (filtered.length === 0) {
-        list.innerHTML = '<div class="empty-msg">該当する事例が見つかりません。フィルタ条件を変えてみてください。</div>';
+        list.innerHTML = '<div class="empty-msg">該当する事例が見つかりません。最初の投稿者になるか、フィルタ条件を変えてみてください。</div>';
         return;
       }
 
-      list.innerHTML = '<div class="case-grid">' + filtered.map(c => `
+      list.innerHTML = '<div class="case-grid">' + filtered.map(c => {
+        const author = c.profiles?.display_name || '不明なユーザー';
+        const likeCount = likeMap[c.id] || 0;
+        const liked = likedSet.has(c.id);
+        const canDelete = isAdminFlag || c.user_id === currentUser.id;
+        return `
         <div class="case-card">
+          ${canDelete ? `<button class="delete-btn" data-del="${c.id}">削除</button>` : ''}
           <div class="badges">
             <span class="${levelClass(c.level)}">${escapeHtml(c.level)}</span>
             <span class="cat">${escapeHtml(c.category)}</span>
@@ -281,23 +290,56 @@
           <div class="summary">${escapeHtml(c.summary)}</div>
           ${c.actions ? `<div class="actions">🔧 ${escapeHtml(c.actions)}</div>` : ''}
           <div class="footer">
-            <span class="saved">⏱️ 月${c.savedHours}時間</span>
-            <button class="like-btn" data-id="${c.id}">❤️ ${c.likes}</button>
+            <span class="saved">⏱️ 月${c.saved_hours}時間</span>
+            <button class="like-btn ${liked ? 'liked' : ''}" data-like="${c.id}">${liked ? '❤️' : '🤍'} ${likeCount}</button>
           </div>
-          <div class="author">👤 ${escapeHtml(c.author)} ・ ${formatRelativeTime(c.postedAt)}</div>
+          <div class="author">👤 ${escapeHtml(author)} ・ ${formatRelativeTime(c.created_at)}</div>
         </div>
-      `).join('') + '</div>';
+      `;
+      }).join('') + '</div>';
 
-      document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.onclick = () => {
-          const id = parseInt(btn.dataset.id, 10);
-          const target = cases.find(c => c.id === id);
-          if (target) { target.likes += 1; saveCases(cases); render(); }
-        };
+      document.querySelectorAll('[data-like]').forEach(btn => {
+        btn.onclick = () => toggleLike(parseInt(btn.dataset.like, 10));
+      });
+      document.querySelectorAll('[data-del]').forEach(btn => {
+        btn.onclick = () => deleteCase(parseInt(btn.dataset.del, 10));
       });
     }
 
-    function submitCase() {
+    async function toggleLike(caseId) {
+      if (likedSet.has(caseId)) {
+        const { error } = await window.supabaseClient
+          .from('case_likes')
+          .delete()
+          .match({ case_study_id: caseId, user_id: currentUser.id });
+        if (error) { alert('いいね解除に失敗：' + error.message); return; }
+        likedSet.delete(caseId);
+        likeMap[caseId] = Math.max(0, (likeMap[caseId] || 1) - 1);
+      } else {
+        const { error } = await window.supabaseClient
+          .from('case_likes')
+          .insert({ case_study_id: caseId, user_id: currentUser.id });
+        if (error) { alert('いいねに失敗：' + error.message); return; }
+        likedSet.add(caseId);
+        likeMap[caseId] = (likeMap[caseId] || 0) + 1;
+      }
+      render();
+    }
+
+    async function deleteCase(caseId) {
+      if (!confirm('この事例を削除しますか？')) return;
+      const { error } = await window.supabaseClient
+        .from('case_studies')
+        .delete()
+        .eq('id', caseId);
+      if (error) { alert('削除に失敗：' + error.message); return; }
+      cases = cases.filter(c => c.id !== caseId);
+      delete likeMap[caseId];
+      likedSet.delete(caseId);
+      render();
+    }
+
+    async function submitCase() {
       const title = document.getElementById('fTitle').value.trim();
       const category = document.getElementById('fCategory').value;
       const level = document.querySelector('input[name=fLevel]:checked').value;
@@ -305,30 +347,48 @@
       const summary = document.getElementById('fSummary').value.trim();
       const actions = document.getElementById('fActions').value.trim();
       const errEl = document.getElementById('formErr');
+      const okEl = document.getElementById('formOk');
 
       const errs = [];
       if (!title) errs.push('タイトル');
       if (!category) errs.push('カテゴリ');
-      if (savedRaw === '' || isNaN(parseInt(savedRaw, 10)) || parseInt(savedRaw, 10) < 0) errs.push('節約時間（0以上の数値）');
+      const savedNum = parseInt(savedRaw, 10);
+      if (savedRaw === '' || isNaN(savedNum) || savedNum < 0 || savedNum > 1000) errs.push('節約時間（0〜1000の数値）');
       if (!summary) errs.push('概要');
       if (errs.length) {
         errEl.textContent = '入力エラー：' + errs.join(' / ') + ' を確認してください。';
         errEl.style.display = 'block';
+        okEl.style.display = 'none';
         return;
       }
       errEl.style.display = 'none';
 
-      const newCase = {
-        id: Date.now(),
-        title, category, level,
-        savedHours: parseInt(savedRaw, 10),
-        summary, actions,
-        likes: 0,
-        author: (sessionStorage.getItem('userName') || 'user') + '・自分',
-        postedAt: Date.now(),
-      };
-      cases.unshift(newCase);
-      saveCases(cases);
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true; btn.textContent = '投稿中...';
+
+      const { data, error } = await window.supabaseClient
+        .from('case_studies')
+        .insert({
+          user_id: currentUser.id,
+          title, category, level,
+          saved_hours: savedNum,
+          summary,
+          actions: actions || null
+        })
+        .select('id, user_id, title, category, level, saved_hours, summary, actions, created_at, profiles(display_name)')
+        .single();
+
+      btn.disabled = false; btn.textContent = '投稿する';
+
+      if (error) {
+        errEl.textContent = '投稿に失敗：' + error.message;
+        errEl.style.display = 'block';
+        return;
+      }
+
+      cases.unshift(data);
+      okEl.style.display = 'block';
+      setTimeout(() => okEl.style.display = 'none', 3000);
       resetForm();
       render();
     }
@@ -343,12 +403,22 @@
       document.getElementById('formErr').style.display = 'none';
     }
 
-    document.getElementById('btnSubmit').onclick = submitCase;
-    document.getElementById('btnReset').onclick = resetForm;
-    ['fSearch','fFilterCat','fSort'].forEach(id => document.getElementById(id).addEventListener('input', render));
-    document.querySelectorAll('.lvCheck').forEach(c => c.addEventListener('change', render));
+    (async () => {
+      currentUser = await window.auth.requireAuth();
+      if (!currentUser) return;
+      isAdminFlag = await window.auth.isAdmin();
 
-    render();
+      const profile = await window.auth.getCurrentProfile();
+      document.getElementById('topbarUser').textContent = profile?.display_name || currentUser.email;
+      document.getElementById('sidebarContainer').innerHTML = renderSidebar('case-study');
+
+      document.getElementById('btnSubmit').onclick = submitCase;
+      document.getElementById('btnReset').onclick = resetForm;
+      ['fSearch','fFilterCat','fSort'].forEach(id => document.getElementById(id).addEventListener('input', render));
+      document.querySelectorAll('.lvCheck').forEach(c => c.addEventListener('change', render));
+
+      await loadAll();
+    })();
   </script>
 </body>
 </html>

@@ -214,13 +214,13 @@
     </div>
   </div>
 
-  <script src="js/common.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js?v=3"></script>
   <script>
-    checkLogin();
-    document.getElementById('sidebarContainer').innerHTML = renderSidebar('campaign');
-    const uname = sessionStorage.getItem('userName') || 'user';
-    document.getElementById('userName').textContent = uname;
-    document.getElementById('userAvatar').textContent = uname.charAt(0).toUpperCase();
+    bootstrapPage('campaign');
 
     const INIT_CAMPAIGNS = [
       { id: 'CP001', title: '春の新規顧客獲得キャンペーン', desc: '新規得意先への特別割引を提供するキャンペーン。初回受注10%オフ。', industry: '全業種', start: '2025/04/01', end: '2025/04/30', target: 5000000, achieved: 3840000, status: '実施中' },

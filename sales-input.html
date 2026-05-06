@@ -218,13 +218,13 @@
     </div>
   </div>
 
-  <script src="js/common.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js?v=3"></script>
   <script>
-    checkLogin();
-    document.getElementById('sidebarContainer').innerHTML = renderSidebar('sales-input');
-    const uname = sessionStorage.getItem('userName') || 'user';
-    document.getElementById('userName').textContent = uname;
-    document.getElementById('userAvatar').textContent = uname.charAt(0).toUpperCase();
+    bootstrapPage('sales-input');
 
     // 今日の日付をデフォルトに
     const today = new Date().toISOString().slice(0, 10);

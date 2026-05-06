@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新規登録 | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .signup-hint {
+      background: rgba(44,123,229,0.08);
+      border: 1px dashed #2c7be5;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #555;
+    }
+    .signup-hint strong { color: #2c7be5; }
+    .error-msg {
+      color: #e63757;
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+    .success-msg {
+      color: #00875a;
+      font-size: 13px;
+      text-align: center;
+      margin: 12px 0;
+      display: none;
+    }
+    .login-link {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+    }
+    .login-link a {
+      color: #2c7be5;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .login-link a:hover { text-decoration: underline; }
+    .help-text {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon">&#128100;</div>
+        <h1>新規登録</h1>
+        <div class="subtitle">PAD練習サイトのアカウントを作成</div>
+      </div>
+
+      <div class="signup-hint">
+        <strong>&#128221; 入力項目について</strong><br>
+        メール・パスワード・表示名はすべて必須です。
+      </div>
+
+      <form id="signupForm" onsubmit="return doSignup(event)">
+        <div class="form-group">
+          <label for="email">メールアドレス <span class="required">*</span></label>
+          <input type="email" id="email" class="form-control" placeholder="例: yamada@example.com" autocomplete="email">
+          <div class="error-msg" id="email-error">有効なメールアドレスを入力してください</div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">パスワード <span class="required">*</span></label>
+          <input type="password" id="password" class="form-control" placeholder="8文字以上の半角英数" autocomplete="new-password">
+          <div class="help-text">8文字以上、半角英数を含めてください</div>
+          <div class="error-msg" id="password-error">パスワードは8文字以上で入力してください</div>
+        </div>
+
+        <div class="form-group">
+          <label for="displayName">表示名 <span class="required">*</span></label>
+          <input type="text" id="displayName" class="form-control" placeholder="例: 山田 太郎" autocomplete="name">
+          <div class="error-msg" id="displayName-error">表示名を入力してください</div>
+        </div>
+
+        <div class="error-msg" id="auth-error" style="font-size:13px; text-align:center; margin-bottom:12px;">
+          登録に失敗しました
+        </div>
+
+        <div class="success-msg" id="success-msg">
+          登録が完了しました。自動的にログインします...
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" id="signupBtn">
+          アカウント作成
+        </button>
+      </form>
+
+      <div class="login-link">
+        すでにアカウントをお持ちの方は <a href="index.html">ログインはこちら</a>
+      </div>
+
+      <div style="margin-top: 20px; font-size: 11px; color: #aaa; text-align: center;">
+        &copy; 2025 PAD練習サイト
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // すでにログイン済みなら即リダイレクト
+    (async () => {
+      const user = await window.auth.getCurrentUser();
+      if (user) window.location.href = 'pad-overview.html';
+    })();
+
+    async function doSignup(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const displayName = document.getElementById('displayName').value.trim();
+
+      document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+      document.getElementById('success-msg').style.display = 'none';
+
+      let hasError = false;
+      if (!email || !email.includes('@')) {
+        document.getElementById('email-error').style.display = 'block'; hasError = true;
+      }
+      if (!password || password.length < 8) {
+        document.getElementById('password-error').style.display = 'block'; hasError = true;
+      }
+      if (!displayName) {
+        document.getElementById('displayName-error').style.display = 'block'; hasError = true;
+      }
+      if (hasError) return false;
+
+      const btn = document.getElementById('signupBtn');
+      btn.innerHTML = '<span class="loading"></span> 登録中...';
+      btn.disabled = true;
+
+      const { data, error } = await window.auth.signUp(email, password, displayName);
+
+      if (error) {
+        const msg = document.getElementById('auth-error');
+        msg.textContent = '登録に失敗しました：' + error.message;
+        msg.style.display = 'block';
+        btn.innerHTML = 'アカウント作成';
+        btn.disabled = false;
+        return false;
+      }
+
+      // メール確認OFF時：data.session が返り即ログイン状態
+      // メール確認ON時：data.session は null、確認メール送信される
+      if (data.session) {
+        document.getElementById('success-msg').textContent = '登録完了！PAD学習ページへ移動します...';
+        document.getElementById('success-msg').style.display = 'block';
+        setTimeout(() => { window.location.href = 'pad-overview.html'; }, 1000);
+      } else {
+        document.getElementById('success-msg').textContent = '登録メールを送信しました。メール内のリンクから認証を完了してください。';
+        document.getElementById('success-msg').style.display = 'block';
+        btn.innerHTML = 'アカウント作成';
+        btn.disabled = false;
+      }
+      return false;
+    }
+  </script>
+</body>
+</html>

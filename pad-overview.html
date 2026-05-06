@@ -184,11 +184,13 @@
     </div>
   </div>
 
-  <script src="js/common.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js?v=3"></script>
   <script>
-    checkLogin();
-    document.getElementById('sidebarContainer').innerHTML = renderSidebar('pad-overview');
-    document.getElementById('topbarUser').textContent = sessionStorage.getItem('userName') || 'user';
+    bootstrapPage('pad-overview');
 
     const ROADMAP_STEPS = [
       { num: 0, title: 'キックオフ', kw: 'PADの威力体感' },
@@ -200,30 +202,36 @@
       { num: 6, title: '制御構造', kw: 'ループ / 分岐 / 例外 / サブフロー' },
       { num: 7, title: '総合演習', kw: 'プロフィール一括出力' },
     ];
-    const progress = getProgress();
-    const current = (() => {
-      for (let i = 0; i < ROADMAP_STEPS.length; i++) {
-        if (!progress.includes(ROADMAP_STEPS[i].num)) return ROADMAP_STEPS[i].num;
-      }
-      return -1;
-    })();
-    const roadmapHtml = ROADMAP_STEPS.map((s, i) => {
-      const done = progress.includes(s.num);
-      const isCurrent = s.num === current;
-      const cls = done ? 'completed' : (isCurrent ? 'current' : '');
-      const last = i === ROADMAP_STEPS.length - 1 ? '' : '<span class="road-arrow">▶</span>';
-      const badge = done ? '✅ 受講済み' : (isCurrent ? '🎯 現在地' : '⚪ 未受講');
-      return `
-        <div class="road-step ${cls}">
-          <div class="num">第${s.num}回</div>
-          <div class="label">${s.title}</div>
-          <div class="kw">${s.kw}</div>
-          <div class="badge-area">${badge}</div>
-        </div>
-        ${last}
-      `;
-    }).join('');
-    document.getElementById('roadmapContainer').innerHTML = roadmapHtml;
+    function renderRoadmap() {
+      const progress = getProgress();
+      const current = (() => {
+        for (let i = 0; i < ROADMAP_STEPS.length; i++) {
+          if (!progress.includes(ROADMAP_STEPS[i].num)) return ROADMAP_STEPS[i].num;
+        }
+        return -1;
+      })();
+      const roadmapHtml = ROADMAP_STEPS.map((s, i) => {
+        const done = progress.includes(s.num);
+        const isCurrent = s.num === current;
+        const cls = done ? 'completed' : (isCurrent ? 'current' : '');
+        const last = i === ROADMAP_STEPS.length - 1 ? '' : '<span class="road-arrow">▶</span>';
+        const badge = done ? '✅ 受講済み' : (isCurrent ? '🎯 現在地' : '⚪ 未受講');
+        return `
+          <div class="road-step ${cls}">
+            <div class="num">第${s.num}回</div>
+            <div class="label">${s.title}</div>
+            <div class="kw">${s.kw}</div>
+            <div class="badge-area">${badge}</div>
+          </div>
+          ${last}
+        `;
+      }).join('');
+      document.getElementById('roadmapContainer').innerHTML = roadmapHtml;
+    }
+    // 進捗ロード完了を待ってから描画（bootstrapPage 完了後に発火）
+    window.addEventListener('progress-loaded', renderRoadmap);
+    // フォールバック：500ms後に強制描画
+    setTimeout(renderRoadmap, 500);
   </script>
 </body>
 </html>

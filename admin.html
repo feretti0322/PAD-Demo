@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理者ダッシュボード | PAD練習サイト</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-hero {
+      background: linear-gradient(135deg, #7c3aed 0%, #2c7be5 100%);
+      border-radius: 12px; padding: 28px; color: #fff; margin-bottom: 24px;
+    }
+    .admin-hero h2 { font-size: 22px; font-weight: 700; margin: 0 0 8px; }
+    .admin-hero p { font-size: 14px; line-height: 1.8; margin: 0; opacity: 0.95; }
+
+    .user-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .user-table th, .user-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #e0e6ed; vertical-align: top; }
+    .user-table th { background: #f4f6f9; color: #1a3a5c; font-weight: 700; }
+    .user-table tr:hover { background: #fafbfc; }
+
+    .badge-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .badge-progress {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #d1fae5; color: #065f46;
+      padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;
+    }
+    .badge-progress button {
+      background: none; border: none; color: #b91c1c; cursor: pointer;
+      font-size: 13px; padding: 0; line-height: 1;
+    }
+    .grant-btn {
+      background: #2c7be5; color: #fff; border: none;
+      padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
+    }
+    .grant-btn:hover { background: #1a5dc0; }
+
+    /* モーダル */
+    .modal-bg {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-bg.show { display: flex; }
+    .modal-card {
+      background: #fff; border-radius: 12px; padding: 24px;
+      width: 90%; max-width: 480px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .modal-card h3 { margin: 0 0 16px; color: #1a3a5c; font-size: 18px; }
+    .modal-card .lesson-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+    .modal-card .lesson-btn {
+      padding: 10px 12px; border: 2px solid #e0e6ed; border-radius: 6px;
+      background: #fff; cursor: pointer; font-size: 13px; text-align: left;
+    }
+    .modal-card .lesson-btn:hover { border-color: #2c7be5; background: #f0f7ff; }
+    .modal-card .lesson-btn.disabled { opacity: 0.4; cursor: not-allowed; background: #f4f6f9; }
+    .modal-card .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+    .loading-msg, .empty-msg { text-align: center; color: #6b7280; padding: 30px; font-size: 14px; }
+    .err-msg { color: #b91c1c; font-size: 13px; padding: 10px; background: #fef2f2; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebarContainer"></div>
+    <div class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">🛡️ 管理者ダッシュボード</div>
+        <div class="topbar-user"><span>👤</span><span id="topbarUser">...</span></div>
+      </header>
+      <main class="page-content">
+
+        <section class="admin-hero">
+          <h2>🛡️ 管理者ダッシュボード</h2>
+          <p>全受講者の進捗を確認し、研修完了バッジを手動で付与・取り消しできます。<br>
+          このページは <code>app_metadata.role = 'admin'</code> を持つユーザーのみアクセス可能です。</p>
+        </section>
+
+        <div class="card">
+          <div class="card-header"><h3>👥 ユーザー一覧（<span id="userCount">0</span>名）</h3></div>
+          <div class="card-body">
+            <div id="userListContainer"><div class="loading-msg">読み込み中...</div></div>
+          </div>
+        </div>
+
+      </main>
+      <footer class="app-footer">© 2025 PAD練習サイト</footer>
+    </div>
+  </div>
+
+  <!-- 進捗付与モーダル -->
+  <div class="modal-bg" id="grantModal">
+    <div class="modal-card">
+      <h3>📚 進捗バッジを付与</h3>
+      <p style="font-size:13px; color:#555; margin:0 0 12px;">対象ユーザー：<strong id="grantTargetName"></strong></p>
+      <div class="lesson-grid" id="lessonGrid"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeGrantModal()">キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js?v=2"></script>
+  <script>
+    const LESSONS = [
+      { num: 0, label: '第0回 キックオフ' },
+      { num: 1, label: '第1回 PAD入門/環境' },
+      { num: 2, label: '第2回 変数' },
+      { num: 3, label: '第3回 Excel自動化' },
+      { num: 4, label: '第4回 ブラウザ自動化①' },
+      { num: 5, label: '第5回 スクレイピング' },
+      { num: 6, label: '第6回 ループ/分岐/エラー' },
+      { num: 7, label: '第7回 総合演習' },
+    ];
+
+    let currentUser = null;
+    let users = [];
+    let progressByUser = {}; // { user_id: Set(lesson_number) }
+    let grantTargetUserId = null;
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    async function loadAll() {
+      const [profilesRes, progressRes] = await Promise.all([
+        window.supabaseClient.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }),
+        window.supabaseClient.from('lesson_progress').select('user_id, lesson_number, completed_at, granted_by')
+      ]);
+
+      const container = document.getElementById('userListContainer');
+
+      if (profilesRes.error) {
+        container.innerHTML = '<div class="err-msg">ユーザー一覧の取得に失敗：' + escapeHtml(profilesRes.error.message) + '</div>';
+        return;
+      }
+      users = profilesRes.data || [];
+      progressByUser = {};
+      (progressRes.data || []).forEach(p => {
+        if (!progressByUser[p.user_id]) progressByUser[p.user_id] = new Set();
+        progressByUser[p.user_id].add(p.lesson_number);
+      });
+
+      renderUsers();
+    }
+
+    function renderUsers() {
+      document.getElementById('userCount').textContent = users.length;
+      const container = document.getElementById('userListContainer');
+
+      if (users.length === 0) {
+        container.innerHTML = '<div class="empty-msg">ユーザーがまだ登録されていません。</div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th style="width:30%;">表示名</th>
+              <th>進捗バッジ</th>
+              <th style="width:140px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users.map(u => {
+              const progSet = progressByUser[u.id] || new Set();
+              const badges = LESSONS.filter(l => progSet.has(l.num)).map(l => `
+                <span class="badge-progress">
+                  ✓ 第${l.num}回
+                  <button title="取り消す" onclick="revokeProgress('${u.id}', ${l.num})">×</button>
+                </span>
+              `).join('') || '<span style="color:#9ca3af; font-size:12px;">なし</span>';
+              return `
+                <tr>
+                  <td>
+                    <strong>${escapeHtml(u.display_name)}</strong>
+                  </td>
+                  <td><div class="badge-list">${badges}</div></td>
+                  <td>
+                    <button class="grant-btn" onclick="openGrantModal('${u.id}', '${escapeHtml(u.display_name)}')">+ バッジ付与</button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function openGrantModal(userId, displayName) {
+      grantTargetUserId = userId;
+      document.getElementById('grantTargetName').textContent = displayName;
+      const progSet = progressByUser[userId] || new Set();
+      document.getElementById('lessonGrid').innerHTML = LESSONS.map(l => {
+        const has = progSet.has(l.num);
+        return `
+          <button class="lesson-btn ${has ? 'disabled' : ''}"
+                  ${has ? 'disabled title="付与済み"' : ''}
+                  onclick="grantProgress(${l.num})">
+            ${escapeHtml(l.label)}${has ? ' ✓' : ''}
+          </button>
+        `;
+      }).join('');
+      document.getElementById('grantModal').classList.add('show');
+    }
+
+    function closeGrantModal() {
+      document.getElementById('grantModal').classList.remove('show');
+      grantTargetUserId = null;
+    }
+
+    async function grantProgress(lessonNumber) {
+      if (!grantTargetUserId) return;
+      const { error } = await window.supabaseClient
+        .from('lesson_progress')
+        .insert({
+          user_id: grantTargetUserId,
+          lesson_number: lessonNumber,
+          granted_by: currentUser.id
+        });
+      if (error) { alert('付与に失敗：' + error.message); return; }
+      if (!progressByUser[grantTargetUserId]) progressByUser[grantTargetUserId] = new Set();
+      progressByUser[grantTargetUserId].add(lessonNumber);
+      closeGrantModal();
+      renderUsers();
+    }
+
+    async function revokeProgress(userId, lessonNumber) {
+      if (!confirm(`第${lessonNumber}回の進捗バッジを取り消しますか？`)) return;
+      const { error } = await window.supabaseClient
+        .from('lesson_progress')
+        .delete()
+        .match({ user_id: userId, lesson_number: lessonNumber });
+      if (error) { alert('取り消しに失敗：' + error.message); return; }
+      progressByUser[userId]?.delete(lessonNumber);
+      renderUsers();
+    }
+
+    (async () => {
+      currentUser = await window.auth.requireAdmin();
+      if (!currentUser) return;
+      const profile = await window.auth.getCurrentProfile();
+      document.getElementById('topbarUser').textContent = (profile?.display_name || currentUser.email) + ' (管理者)';
+      document.getElementById('sidebarContainer').innerHTML = renderSidebar('admin');
+      await loadAll();
+    })();
+  </script>
+</body>
+</html>
